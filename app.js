@@ -5,8 +5,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var azureTools = require('./modules/azure');
-var routes = require('./routes/index');
-var users = require('./routes/users');
 var validate = require('./routes/validate');
 var debug = require('debug')('arm-validator:server');
 var app = express();
@@ -23,9 +21,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
-app.use('/validate', validate);
+app.use('/', validate);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -57,12 +53,18 @@ app.use(function(err, req, res, next) {
   });
 });
 
+// init
 azureTools.login()
 .then(function () {
   debug('Sucessfully logged into azure subscription');
+  // clear any existing groups that may have been left 
+  // behind possilby due to a restart
+  return azureTools.deleteExistingGroups();
 })
 .catch(function (err) {
-  debug('Failed to log into azure subscription');
+  debug('Failed to Initialize Properly');
+  debug('This can be either to unable to login or a problem with');
+  debug('matching resource groups to those stored in the database:');
   debug(err);
 });
 
