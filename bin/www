@@ -28,7 +28,11 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
+server.on('connection', function (socket) {
+  console.log("A new connection was made by a client.");
+  // templates take a while to deploy, have a long timeout
+  socket.setTimeout(3600 * 1000); 
+});
 /**
  * Normalize a port into a number, string, or false.
  */
