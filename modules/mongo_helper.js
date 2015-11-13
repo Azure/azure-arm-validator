@@ -5,7 +5,7 @@ var MongoClient = require('mongodb').MongoClient,
 
 var connect = function () {
   // Connection URL
-  var url = conf.get('MONGO_CONNECTION_STRING');
+  var url = conf.get('MONGO_URL');
   var connectPromise = denodeify(MongoClient.connect);
 
   return connectPromise.call(MongoClient, url)
