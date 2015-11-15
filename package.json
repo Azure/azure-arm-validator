@@ -17,6 +17,7 @@
     "es6-denodeify": "^0.1.5",
     "express": "~4.13.1",
     "guid": "0.0.12",
+    "http-delayed-response": "0.0.4",
     "jade": "~1.11.0",
     "mongodb": "^2.0.48",
     "morgan": "~1.6.1",

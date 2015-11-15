@@ -4,7 +4,8 @@ var express = require('express'),
     Guid = require('guid'),
     fs = require('fs'),
     conf = require('../modules/config');
-    RSVP = require('rsvp');
+    RSVP = require('rsvp'),
+    DelayedResponse = require('http-delayed-response');
 
 var debug = require('debug')('arm-validator:server');
 
@@ -46,13 +47,17 @@ router.post('/deploy', function (req, res, next) {
       rgName = conf.get('RESOURCE_GROUP_NAME_PREFIX') + Guid.raw(),
       parametersFileName = Guid.raw();
 
+  var delayed = new DelayedResponse(req, res);
+  // shortcut for res.setHeader('Content-Type', 'application/json') 
+  delayed.json();
+  // start activates long-polling - headers must be set before 
   for (var key in req.body.parameters.parameters) {
     // for unique parameters replace with a guid
     if (req.body.parameters.parameters[key].value === conf.get('PARAM_REPLACE_INDICATOR')) {
       req.body.parameters.parameters[key].value = 'citest' + Guid.raw().replace(/-/g,'').substring(0, 16);
     }
   }
-
+  var responseHandler = delayed.start();
   writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
   .then(function () {
     debug('deploying template: ');
@@ -62,11 +67,21 @@ router.post('/deploy', function (req, res, next) {
     return azureTools.testTemplate(fileName, parametersFileName, rgName);
   })
   .then(function () {
-    return res.send({result: 'Deployment Sucessful'});
+    debug('Deployment Successful');
+    // stop sending long poll bytes
+    delayed.stop();
+    return res.end(JSON.stringify({result: 'Deployment Successful'}));
   })
   .catch(function (err) {
     debug(err);
-    return res.status(400).send({error: err.toString(), _rgName: rgName, command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json'});
+    debug('Deployment not Sucessful');
+    // stop sending long poll bytes
+    delayed.stop();
+    return res.end(JSON.stringify({error: err.toString(), 
+      _rgName: rgName, 
+      command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json'
+      })
+    );
   })
   .finally(function () {
     fs.unlink(fileName);
