@@ -56,6 +56,11 @@ router.post('/deploy', function (req, res, next) {
     if (req.body.parameters.parameters[key].value === conf.get('PARAM_REPLACE_INDICATOR')) {
       req.body.parameters.parameters[key].value = 'citest' + Guid.raw().replace(/-/g,'').substring(0, 16);
     }
+
+    // for ssh keys, use configured ssh public key
+    if (req.body.parameters.parameters[key].value === conf.get('SSH_KEY_REPLACE_INDICATOR')) {
+      req.body.parameters.parameters[key].value = conf.get('SSH_PUBLIC_KEY');
+    }
   }
   var responseHandler = delayed.start();
   writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
@@ -78,8 +83,9 @@ router.post('/deploy', function (req, res, next) {
     // stop sending long poll bytes
     delayed.stop();
     return res.end(JSON.stringify({error: err.toString(), 
-      _rgName: rgName, 
-      command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json'
+        _rgName: rgName, 
+        command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json',
+        parameters: JSON.stirngify(req.body.parameters)
       })
     );
   })
