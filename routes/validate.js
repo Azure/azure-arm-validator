@@ -85,7 +85,7 @@ router.post('/deploy', function (req, res, next) {
     return res.end(JSON.stringify({error: err.toString(), 
         _rgName: rgName, 
         command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json',
-        parameters: JSON.stirngify(req.body.parameters)
+        parameters: JSON.stringify(req.body.parameters)
       })
     );
   })
