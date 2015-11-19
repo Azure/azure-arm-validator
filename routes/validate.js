@@ -56,12 +56,16 @@ router.post('/deploy', function (req, res, next) {
     if (req.body.parameters.parameters[key].value === conf.get('PARAM_REPLACE_INDICATOR')) {
       req.body.parameters.parameters[key].value = 'citest' + Guid.raw().replace(/-/g,'').substring(0, 16);
     }
-
     // for ssh keys, use configured ssh public key
     if (req.body.parameters.parameters[key].value === conf.get('SSH_KEY_REPLACE_INDICATOR')) {
       req.body.parameters.parameters[key].value = conf.get('SSH_PUBLIC_KEY');
     }
+    // for passwords use a random azure-compatible password
+    if (req.body.parameters.parameters[key].value === conf.get('PASSWORD_REPLACE_INDICATOR')) {
+      req.body.parameters.parameters[key].value = 'ciP@ss' + Guid.raw().replace(/-/g,'').substring(0, 16);
+    }
   }
+
   var responseHandler = delayed.start();
   writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
   .then(function () {
