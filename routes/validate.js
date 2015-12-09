@@ -66,21 +66,16 @@ router.post('/deploy', function (req, res, next) {
   var delayed = new DelayedResponse(req, res);
   // shortcut for res.setHeader('Content-Type', 'application/json') 
   delayed.json();
-  // start activates long-polling - headers must be set before 
-  for (var key in req.body.parameters.parameters) {
-    // for unique parameters replace with a guid
-    if (/##\#+/.test(req.body.parameters.parameters[key].value)) {
-      req.body.parameters.parameters[key].value = 'ci' + Guid.raw().replace(/-/g,'').substring(0, 16);
-    }
-    // for ssh keys, use configured ssh public key
-    if (req.body.parameters.parameters[key].value === conf.get('SSH_KEY_REPLACE_INDICATOR')) {
-      req.body.parameters.parameters[key].value = conf.get('SSH_PUBLIC_KEY');
-    }
-    // for passwords use a random azure-compatible password
-    if (req.body.parameters.parameters[key].value === conf.get('PASSWORD_REPLACE_INDICATOR')) {
-      req.body.parameters.parameters[key].value = 'ciP@ss' + Guid.raw().replace(/-/g,'').substring(0, 16);
-    }
-  }
+
+  var parametersString = JSON.stringify(req.body.parameters);
+  // for unique parameters replace with a guid
+  parametersString = parametersString.replace(new RegExp(conf.get('PARAM_REPLACE_INDICATOR'), 'g'), 'ci' + Guid.raw().replace(/-/g,'').substring(0, 16));
+  parametersString = parametersString.replace(new RegExp(conf.get('SSH_KEY_REPLACE_INDICATOR'), 'g'), conf.get('SSH_PUBLIC_KEY'));
+  parametersString = parametersString.replace(new RegExp(conf.get('PASSWORD_REPLACE_INDICATOR'), 'g'), 'ciP$ss' + Guid.raw().replace(/-/g,'').substring(0, 16));
+
+  debug('rendered parameters string: ');
+  debug(parametersString);
+  req.body.parameters = JSON.parse(parametersString);
 
   var responseHandler = delayed.start();
   var promise = new RSVP.Promise((resolve, reject) => {
