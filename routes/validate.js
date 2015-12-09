@@ -70,7 +70,7 @@ router.post('/deploy', function (req, res, next) {
   for (var key in req.body.parameters.parameters) {
     // for unique parameters replace with a guid
     if (/##\#+/.test(req.body.parameters.parameters[key].value)) {
-      req.body.parameters.parameters[key].value = 'citest' + Guid.raw().replace(/-/g,'').substring(0, 16);
+      req.body.parameters.parameters[key].value = 'ci' + Guid.raw().replace(/-/g,'').substring(0, 16);
     }
     // for ssh keys, use configured ssh public key
     if (req.body.parameters.parameters[key].value === conf.get('SSH_KEY_REPLACE_INDICATOR')) {
