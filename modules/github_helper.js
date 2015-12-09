@@ -1,7 +1,7 @@
 var unirest = require('unirest');
 var path = require('path');
 var conf = require('./config');
-var RSVP = require('RSVP');
+var RSVP = require('rsvp');
 
 exports.getPullRequestBaseLink = function (prNumber) {
 
