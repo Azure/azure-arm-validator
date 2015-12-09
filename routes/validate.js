@@ -1,10 +1,12 @@
 var express = require('express'),
     router = express.Router(),
+    path = require('path'),
     azureTools = require('../modules/azure'),
     Guid = require('guid'),
     fs = require('fs'),
     conf = require('../modules/config');
     RSVP = require('rsvp'),
+    githubHelper = require('../modules/github_helper'),
     DelayedResponse = require('http-delayed-response');
 
 var debug = require('debug')('arm-validator:server');
@@ -15,6 +17,19 @@ function writeFileHelper (fs, fileName, parametersFileName, template, parameters
   .then(function () {
     return writeFile.call(fs, parametersFileName, JSON.stringify(parameters, null, '\t'));
   })
+}
+
+function replaceRawLinksForPR (template, prNumber) {
+  var templateString = JSON.stringify(template);
+  // we make the assumption all links target a source on master
+  var replaceTarget = 'https://' + path.join('raw.githubusercontent.com/', conf.get('GITHUB_REPO'), '/master');
+  debug('replaceTarget: ' + replaceTarget);
+  return githubHelper.getPullRequestBaseLink(prNumber)
+  .then(link => {
+    // replace something like 'https://raw.githubusercontent.com/azure/azure-quickstart-templates/master'
+    // with 'https://raw.githubusercontent.com/user/azure-quickstart-templates/sourcebranch'
+    return JSON.parse(templateString.replace(new RegExp(replaceTarget, 'g'), link));
+  });
 }
 router.post('/validate', function(req, res, next) {
 
@@ -43,6 +58,7 @@ router.post('/validate', function(req, res, next) {
 });
 
 router.post('/deploy', function (req, res, next) {
+
   var fileName = Guid.raw(),
       rgName = conf.get('RESOURCE_GROUP_NAME_PREFIX') + Guid.raw(),
       parametersFileName = Guid.raw();
@@ -67,7 +83,26 @@ router.post('/deploy', function (req, res, next) {
   }
 
   var responseHandler = delayed.start();
-  writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
+  var promise = new RSVP.Promise((resolve, reject) => {
+    resolve();
+  });
+
+  debug('pull request number: ' + req.body.pull_request)
+  if (req.body.pull_request) {
+    promise = promise
+    .then(() => {
+      return replaceRawLinksForPR(req.body.template, req.body.pull_request)
+    })
+    .then((modifiedTemplate) => {
+      debug('modified template is:');
+      debug(modifiedTemplate);
+      req.body.template = modifiedTemplate;
+    });
+  }
+
+  promise.then(() => {
+    return writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters);
+  })
   .then(function () {
     debug('deploying template: ');
     debug(JSON.stringify(req.body.template, null, '\t'));

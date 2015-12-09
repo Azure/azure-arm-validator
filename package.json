@@ -23,6 +23,7 @@
     "morgan": "~1.6.1",
     "nconf": "^0.8.2",
     "rsvp": "^3.1.0",
-    "serve-favicon": "~2.3.0"
+    "serve-favicon": "~2.3.0",
+    "unirest": "^0.4.2"
   }
 }
