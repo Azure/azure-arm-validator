@@ -68,8 +68,15 @@ router.post('/deploy', function (req, res, next) {
   delayed.json();
 
   var parametersString = JSON.stringify(req.body.parameters);
-  // for unique parameters replace with a guid
-  parametersString = parametersString.replace(new RegExp(conf.get('PARAM_REPLACE_INDICATOR'), 'g'), 'ci' + Guid.raw().replace(/-/g,'').substring(0, 16));
+  
+  // for unique parameters replace each with a guid
+  var matches = parametersString.match(new RegExp(conf.get('PARAM_REPLACE_INDICATOR'), 'g'));
+  if (matches) {
+    matches.forEach(match => {
+      parametersString = parametersString.replace(match, 'ci'+Guid.raw().replace(/-/g,'').substring(0, 16));
+    });
+  }
+
   parametersString = parametersString.replace(new RegExp(conf.get('SSH_KEY_REPLACE_INDICATOR'), 'g'), conf.get('SSH_PUBLIC_KEY'));
   parametersString = parametersString.replace(new RegExp(conf.get('PASSWORD_REPLACE_INDICATOR'), 'g'), 'ciP$ss' + Guid.raw().replace(/-/g,'').substring(0, 16));
 
