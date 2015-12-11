@@ -1,7 +1,6 @@
 var MongoClient = require('mongodb').MongoClient,
-    assert = require('assert'),
-    conf = require('./config'),
-    denodeify = require('es6-denodeify')(Promise);
+  conf = require('./config'),
+  denodeify = require('es6-denodeify')(Promise);
 
 var connect = function () {
   // Connection URL
@@ -9,9 +8,10 @@ var connect = function () {
   var connectPromise = denodeify(MongoClient.connect);
 
   return connectPromise.call(MongoClient, url)
-         .catch(err => {
-           console.error('Failed to conenct to: ' + url);
-         });
+    .catch(err => {
+      console.error('Failed to conenct to: ' + url);
+      console.error(err);
+    });
 };
 
 module.exports = {
