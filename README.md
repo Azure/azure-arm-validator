@@ -54,7 +54,7 @@ Body:
   },
   "parameters": {
   },
-  pull_request: 44
+  "pull_request": 44
 }
 ```
 
