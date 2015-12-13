@@ -19,6 +19,7 @@ function writeFileHelper(fs, fileName, parametersFileName, template, parameters)
     });
 }
 
+// replaces https://raw.githubusercontent.com links to upstream:master to the downstream repo
 function replaceRawLinksForPR(template, prNumber) {
   var templateString = JSON.stringify(template);
   // we make the assumption all links target a source on master
@@ -31,11 +32,31 @@ function replaceRawLinksForPR(template, prNumber) {
       return JSON.parse(templateString.replace(new RegExp(replaceTarget, 'g'), link));
     });
 }
+
+// replaces
+function replaceSpecialParameterPlaceholders(req) {
+  var parametersString = JSON.stringify(req.body.parameters);
+  // for unique parameters replace each with a guid
+  var matches = parametersString.match(new RegExp(conf.get('PARAM_REPLACE_INDICATOR'), 'g'));
+  if (matches) {
+    matches.forEach(match => {
+      parametersString = parametersString.replace(match, 'ci' + Guid.raw().replace(/-/g, '').substring(0, 16));
+    });
+  }
+
+  parametersString = parametersString.replace(new RegExp(conf.get('SSH_KEY_REPLACE_INDICATOR'), 'g'), conf.get('SSH_PUBLIC_KEY'));
+  parametersString = parametersString.replace(new RegExp(conf.get('PASSWORD_REPLACE_INDICATOR'), 'g'), 'ciP$ss' + Guid.raw().replace(/-/g, '').substring(0, 16));
+
+  debug('rendered parameters string: ');
+  debug(parametersString);
+  req.body.parameters = JSON.parse(parametersString);
+}
 router.post('/validate', function (req, res) {
 
   var fileName = Guid.raw(),
     parametersFileName = Guid.raw();
 
+  replaceSpecialParameterPlaceholders(req);
 
   writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
     .then(function () {
@@ -70,24 +91,7 @@ router.post('/deploy', function (req, res) {
   var delayed = new DelayedResponse(req, res);
   // shortcut for res.setHeader('Content-Type', 'application/json') 
   delayed.json();
-
-  var parametersString = JSON.stringify(req.body.parameters);
-
-  // for unique parameters replace each with a guid
-  var matches = parametersString.match(new RegExp(conf.get('PARAM_REPLACE_INDICATOR'), 'g'));
-  if (matches) {
-    matches.forEach(match => {
-      parametersString = parametersString.replace(match, 'ci' + Guid.raw().replace(/-/g, '').substring(0, 16));
-    });
-  }
-
-  parametersString = parametersString.replace(new RegExp(conf.get('SSH_KEY_REPLACE_INDICATOR'), 'g'), conf.get('SSH_PUBLIC_KEY'));
-  parametersString = parametersString.replace(new RegExp(conf.get('PASSWORD_REPLACE_INDICATOR'), 'g'), 'ciP$ss' + Guid.raw().replace(/-/g, '').substring(0, 16));
-
-  debug('rendered parameters string: ');
-  debug(parametersString);
-  req.body.parameters = JSON.parse(parametersString);
-
+  replaceSpecialParameterPlaceholders(req);
   delayed.start();
   var promise = new RSVP.Promise((resolve) => {
     resolve();
