@@ -2,6 +2,7 @@ language: node_js
 before_script:
   - npm install -g grunt-cli
   - npm install -g mocha
+  - sudo apt-get install expect
 node_js:
   - "4.1.2"
 deploy:
