@@ -1,0 +1,11 @@
+#!/usr/bin/expect -f
+
+chmod 600 .travis/dokku.key
+
+expect << EOF
+  spawn ssh-add .travis/dokku_deploy_key
+  expect "Enter passphrase"
+  send "\r"
+  expect eof
+EOF
+
