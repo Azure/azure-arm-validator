@@ -2,6 +2,7 @@ var express = require('express'),
   router = express.Router(),
   path = require('path'),
   azureTools = require('../modules/azure'),
+  paramHelper = require('../modules/param_helper'),
   Guid = require('guid'),
   fs = require('fs'),
   conf = require('../modules/config'),
@@ -35,21 +36,7 @@ function replaceRawLinksForPR(template, prNumber) {
 
 // replaces
 function replaceSpecialParameterPlaceholders(req) {
-  var parametersString = JSON.stringify(req.body.parameters);
-  // for unique parameters replace each with a guid
-  var matches = parametersString.match(new RegExp(conf.get('PARAM_REPLACE_INDICATOR'), 'g'));
-  if (matches) {
-    matches.forEach(match => {
-      parametersString = parametersString.replace(match, 'ci' + Guid.raw().replace(/-/g, '').substring(0, 16));
-    });
-  }
-
-  parametersString = parametersString.replace(new RegExp(conf.get('SSH_KEY_REPLACE_INDICATOR'), 'g'), conf.get('SSH_PUBLIC_KEY'));
-  parametersString = parametersString.replace(new RegExp(conf.get('PASSWORD_REPLACE_INDICATOR'), 'g'), 'ciP$ss' + Guid.raw().replace(/-/g, '').substring(0, 16));
-
-  debug('rendered parameters string: ');
-  debug(parametersString);
-  req.body.parameters = JSON.parse(parametersString);
+  req.body.parameters = paramHelper.replaceKeyParameters(req.body.parameters);
 }
 router.post('/validate', function (req, res) {
 
@@ -89,7 +76,7 @@ router.post('/deploy', function (req, res) {
     parametersFileName = Guid.raw();
 
   var delayed = new DelayedResponse(req, res);
-  // shortcut for res.setHeader('Content-Type', 'application/json') 
+  // shortcut for res.setHeader('Content-Type', 'application/json')
   delayed.json();
   replaceSpecialParameterPlaceholders(req);
   delayed.start();
@@ -111,49 +98,49 @@ router.post('/deploy', function (req, res) {
   }
 
   promise.then(() => {
-      return writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters);
-    })
-    .then(function () {
-      debug('deploying template: ');
-      debug(JSON.stringify(req.body.template, null, '\t'));
-      debug('with paremeters: ');
-      debug(JSON.stringify(req.body.parameters, null, '\t'));
-      return azureTools.testTemplate(fileName, parametersFileName, rgName);
-    })
-    .then(function () {
-      debug('Deployment Successful');
-      // stop sending long poll bytes
-      delayed.stop();
-      return res.end(JSON.stringify({
-        result: 'Deployment Successful'
-      }));
-    })
-    .catch(function (err) {
-      debug(err);
-      debug('Deployment not Sucessful');
-      // stop sending long poll bytes
-      delayed.stop();
-      return res.end(JSON.stringify({
-        error: err.toString(),
-        _rgName: rgName,
-        command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json',
-        parameters: JSON.stringify(req.body.parameters),
-        template: JSON.stringify(req.body.template)
-      }));
-    })
-    .finally(function () {
-      fs.unlink(fileName);
-      fs.unlink(parametersFileName);
+    return writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters);
+  })
+  .then(function () {
+    debug('deploying template: ');
+    debug(JSON.stringify(req.body.template, null, '\t'));
+    debug('with paremeters: ');
+    debug(JSON.stringify(req.body.parameters, null, '\t'));
+    return azureTools.testTemplate(fileName, parametersFileName, rgName);
+  })
+  .then(function () {
+    debug('Deployment Successful');
+    // stop sending long poll bytes
+    delayed.stop();
+    return res.end(JSON.stringify({
+      result: 'Deployment Successful'
+    }));
+  })
+  .catch(function (err) {
+    debug(err);
+    debug('Deployment not Sucessful');
+    // stop sending long poll bytes
+    delayed.stop();
+    return res.end(JSON.stringify({
+      error: err.toString(),
+      _rgName: rgName,
+      command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json',
+      parameters: JSON.stringify(req.body.parameters),
+      template: JSON.stringify(req.body.template)
+    }));
+  })
+  .finally(function () {
+    fs.unlink(fileName);
+    fs.unlink(parametersFileName);
 
-      azureTools.deleteGroup(rgName)
-        .then(() => {
-          debug('Sucessfully cleaned up resource group: ' + rgName);
-        })
-        .catch((err) => {
-          console.error('failed to delete resource group: ' + rgName);
-          console.error(err);
-        });
-    });
+    azureTools.deleteGroup(rgName)
+      .then(() => {
+        debug('Sucessfully cleaned up resource group: ' + rgName);
+      })
+      .catch((err) => {
+        console.error('failed to delete resource group: ' + rgName);
+        console.error(err);
+      });
+  });
 });
 
 module.exports = router;

@@ -9,9 +9,9 @@ var invoke = RSVP.denodeify(scripty.invoke);
 exports.login = function () {
   var cmd = {
       command: 'login --service-principal',
-      'username': conf.get('AZURE_CLIENT_ID'),
-      'password': conf.get('AZURE_CLIENT_SECRET'),
-      'tenant': conf.get('AZURE_TENANT_ID')
+      username: conf.get('AZURE_CLIENT_ID'),
+      password: conf.get('AZURE_CLIENT_SECRET'),
+      tenant: conf.get('AZURE_TENANT_ID')
     },
     arm = {
       command: 'config mode arm'
