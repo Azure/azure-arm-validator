@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-chmod 600 .travis/dokku.key
+chmod 600 ./dokku.key
 
 expect << EOF
   spawn ssh-add ./dokku.key
