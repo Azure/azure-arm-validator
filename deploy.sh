@@ -18,6 +18,7 @@ ssh-agent -s
 echo 'Adding decrypted SSH private keys for deployment'
 echo "$DOKKU_PRIVATE_KEY" > ./dokku.key
 
+chmod 600 ./dokku.key
 ssh-add ./dokku.key
 
 echo 'Private keys added. Starting Dokku Deployment'
