@@ -20,7 +20,7 @@ echo "$DOKKU_PRIVATE_KEY" > ./dokku.key
 
 chmod 600 ./dokku.key
 chmod 600 ~/.ssh/authorized_keys
-ssh-add ./dokku.key
+. ./scripts/deploy_passphrase.exp
 
 echo 'Private keys added. Starting Dokku Deployment'
 git remote add $GIT_USERNAME $GIT_TARGET_URL
