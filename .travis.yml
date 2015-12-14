@@ -4,4 +4,9 @@ before_script:
   - npm install -g mocha
 node_js:
   - "4.1.2"
-
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
