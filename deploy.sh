@@ -15,8 +15,8 @@ GIT_TARGET_URL="${GIT_USERNAME}@${AZURE_WA_GIT_TARGET}:${DOKKU_APPNAME}"
 eval "$(ssh-agent -s)"
 ssh-agent -s
 
-chmod 600 ./dokku-deploy.key
-ssh-add ./dokku-deploy.key
+chmod 600 ./dokku-deploy
+ssh-add ./dokku-deploy
 
 echo 'Private keys added. Starting Dokku Deployment'
 git remote add $GIT_USERNAME $GIT_TARGET_URL
