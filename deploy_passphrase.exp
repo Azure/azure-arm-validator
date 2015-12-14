@@ -3,7 +3,7 @@
 chmod 600 .travis/dokku.key
 
 expect << EOF
-  spawn ssh-add .travis/dokku_deploy_key
+  spawn ssh-add ./dokku.key
   expect "Enter passphrase"
   send "\r"
   expect eof
