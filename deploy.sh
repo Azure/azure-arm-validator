@@ -20,11 +20,11 @@ echo "$DOKKU_PRIVATE_KEY" > ./dokku.key
 
 chmod 600 ./dokku.key
 chmod 600 ~/.ssh/authorized_keys
-. ./scripts/deploy_passphrase.exp
+. ./deploy_passphrase.exp
 
 echo 'Private keys added. Starting Dokku Deployment'
 git remote add $GIT_USERNAME $GIT_TARGET_URL
 
-git push dokku master -f
+. ./dokku_git_push.exp
 
 echo 'Deployed Latest Version of Arm Validator'
