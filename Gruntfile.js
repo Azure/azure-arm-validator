@@ -27,15 +27,6 @@ grunt.initConfig({
       }
   },
   jsbeautifier: {
-      test: {
-          files: {
-              src: files
-          },
-          options: {
-              mode: 'VERIFY_ONLY',
-              config: '.beautifyrc'
-          }
-      },
       write: {
           files: {
               src: files
@@ -46,5 +37,5 @@ grunt.initConfig({
       }
   }
 });
-grunt.registerTask('test', ['jshint', 'jscs', 'jsbeautifier', 'mochacli']);
+grunt.registerTask('test', ['jshint', 'jscs', 'mochacli']);
 

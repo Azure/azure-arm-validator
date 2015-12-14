@@ -94,6 +94,5 @@ describe('Validate Route Tests', () => {
           return resolve(res.body);
         });
     });
-
   });
 });

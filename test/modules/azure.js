@@ -1,16 +1,6 @@
 /*global describe, it*/
-var fs = require('fs');
 var assert = require('assert');
-var configString = fs.readFileSync('./.example-config.json', {
-  encoding: 'utf8'
-}).trim();
-var configData = JSON.parse(configString);
-
-for (var key in configData) {
-  if (typeof key === 'string') {
-    process.env[key] = configData[key];
-  }
-}
+require('../helpers/setup_env');
 
 var mockery = require('mockery');
 mockery.registerSubstitute('azure-scripty', '../test/mocks/azure');
