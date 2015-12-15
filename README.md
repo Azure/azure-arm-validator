@@ -77,7 +77,8 @@ Upon failure you will recieve:
 
 The server by default configuration will replace several special value type fields in the parameters file:
 
-- `GEN_UNIQUE` - Replaces this with a generated unique value suitable for domain names, storage accounts and usernames
+- `GEN_UNIQUE` - Replaces this with a generated unique value suitable for domain names, storage accounts and usernames. The length of the generated paramter will be 18 characters long.
+- `GEN_UNIQUE_[N]` - Replaces this with a generated unique value suitable for domain names, sotrage accounts and usernames. The length is specified by `[N]` where it can be any number between 3 to 32 inclusive. For example, `GEN_UNIQUE_22`.
 - `GEN_PASSWORD` - Replaces this with a generated azure-compatible password, useful for virtual machine names.
 - `GEN_SSH_PUB_KEY` - Replaces this with a generated SSH public key
 
@@ -129,8 +130,7 @@ A configuration file example is provided at [`./.example-config.json`](./.exampl
   "SSH_KEY_REPLACE_INDICATOR": "GEN_SSH_PUB_KEY",
   "SSH_PUBLIC_KEY": "ssh-rsa create an ssh public key using ssh-keygen",
   "PASSWORD_REPLACE_INDICATOR": "GEN_PASSWORD",
-  "GITHUB_REPO": "Azure/azure-quickstart-templates",
-  "AAD_CLIENT_ID_INDICATOR": "GEN_AAD"
+  "GITHUB_REPO": "Azure/azure-quickstart-templates"
 }
 ```
 
