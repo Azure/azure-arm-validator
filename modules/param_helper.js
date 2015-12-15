@@ -6,10 +6,10 @@ var assert = require('assert');
 exports.replaceKeyParameters = function (parameters) {
   var parametersString = JSON.stringify(parameters);
   // for unique parameters replace each with a guid
-  var matches = parametersString.match(new RegExp(conf.get('PARAM_REPLACE_INDICATOR') + '_\\d+', 'g'));
+  var matches = parametersString.match(new RegExp(conf.get('PARAM_REPLACE_INDICATOR') + '-\\d+', 'g'));
   if (matches) {
     matches.forEach(match => {
-      var splitPoint = match.indexOf('_', conf.get('PARAM_REPLACE_INDICATOR').length);
+      var splitPoint = match.indexOf('-', conf.get('PARAM_REPLACE_INDICATOR').length);
       var length = parseInt(match.substring(splitPoint + 1, match.length));
       assert(typeof length === 'number', 'Variable length unique params must be appened by an integer');
       assert(length >= 3 && length <= 32, 'Variable length unique params must specify a length between 3 and 32');

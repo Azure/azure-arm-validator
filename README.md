@@ -77,10 +77,10 @@ Upon failure you will recieve:
 
 The server by default configuration will replace several special value type fields in the parameters file:
 
-- `GEN_UNIQUE` - Replaces this with a generated unique value suitable for domain names, storage accounts and usernames. The length of the generated paramter will be 18 characters long.
-- `GEN_UNIQUE_[N]` - Replaces this with a generated unique value suitable for domain names, sotrage accounts and usernames. The length is specified by `[N]` where it can be any number between 3 to 32 inclusive. For example, `GEN_UNIQUE_22`.
-- `GEN_PASSWORD` - Replaces this with a generated azure-compatible password, useful for virtual machine names.
-- `GEN_SSH_PUB_KEY` - Replaces this with a generated SSH public key
+- `GEN-UNIQUE` - Replaces this with a generated unique value suitable for domain names, storage accounts and usernames. The length of the generated paramter will be 18 characters long.
+- `GEN-UNIQUE-[N]` - Replaces this with a generated unique value suitable for domain names, sotrage accounts and usernames. The length is specified by `[N]` where it can be any number between 3 to 32 inclusive. For example, `GEN_UNIQUE_22`.
+- `GEN-PASSWORD` - Replaces this with a generated azure-compatible password, useful for virtual machine names.
+- `GEN-SSH-PUB-KEY` - Replaces this with a generated SSH public key
 
 In a typical `azuredeploy.parameters.json` your template file would look like:
 

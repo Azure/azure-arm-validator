@@ -3,19 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "newStorageAccountName":{
-      "value": "GEN_UNIQUE_8"
+      "value": "GEN-UNIQUE-8"
     },
     "location": {
       "value": "West US"
     },
     "adminUsername": {
-      "value": "GEN_UNIQUE_8"
+      "value": "GEN-UNIQUE-8"
     },
     "sshKeyData": {
-      "value": "GEN_SSH_PUB_KEY"
+      "value": "GEN-SSH-PUB-KEY"
     },
     "dnsNameForPublicIP": {
-      "value": "GEN_UNIQUE_24"
+      "value": "GEN-UNIQUE-24"
     }
   }
 }

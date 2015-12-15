@@ -17,7 +17,7 @@ describe('Paramter Helper Tests', () => {
     var placeholder = conf.get('PARAM_REPLACE_INDICATOR');
     assert(parameterString.match(new RegExp(placeholder, 'g')).length > 0,
       'In ./test/assets/dokku-vm/azuredeploy.parameters.json \
-      Expected ./test/assets/dokku-vm/azuredeploy.parameters.json to have GEN_UNIQUE placeholders');
+      Expected ./test/assets/dokku-vm/azuredeploy.parameters.json to have GEN-UNIQUE placeholders');
     var parameters = JSON.parse(parameterString);
 
     parameters = paramHelper.replaceKeyParameters(parameters);
@@ -33,10 +33,10 @@ describe('Paramter Helper Tests', () => {
 
     assert.equal(parameterString.match(new RegExp(placeholder, 'g')), null, 'In \
       ./test/assets/dokku-vm/azuredeploy.parameters.json \
-      Expected all GEN_UNIQUE parameters to be replaced');
+      Expected all GEN-UNIQUE parameters to be replaced');
   });
 
-  it('Should replace ' + conf.get('PARAM_REPLACE_INDICATOR') + '_[N] placeholder with a unqiue [N] character parameter', () => {
+  it('Should replace ' + conf.get('PARAM_REPLACE_INDICATOR') + '-[N] placeholder with a unqiue [N] character parameter', () => {
     // first read the sample template
     var paramHelper = require('../../modules/param_helper');
     var parameterString = fs.readFileSync('./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json', {
@@ -44,11 +44,10 @@ describe('Paramter Helper Tests', () => {
     }).trim();
 
     var placeholder = conf.get('PARAM_REPLACE_INDICATOR');
-    console.log('matching ' + placeholder + '_\\d+');
 
-    assert(parameterString.match(new RegExp(placeholder + '_\\d+', 'g')).length > 0,
+    assert(parameterString.match(new RegExp(placeholder + '-\\d+', 'g')).length > 0,
       'In ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json \
-      Expected ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json to have GEN_UNIQUE placeholders');
+      Expected ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json to have GEN-UNIQUE placeholders');
     var parameters = JSON.parse(parameterString);
 
     parameters = paramHelper.replaceKeyParameters(parameters);
@@ -63,10 +62,10 @@ describe('Paramter Helper Tests', () => {
     parameterString = JSON.stringify(parameters);
 
     // check all placeholders are gone
-    assert.equal(parameterString.match(new RegExp(placeholder + '_\\d+'), null, 'Expected all ' + placeholder + '_[N] parameters to be replaced'));
+    assert.equal(parameterString.match(new RegExp(placeholder + '-\\d+'), null, 'Expected all ' + placeholder + '-[N] parameters to be replaced'));
   });
 
-  it('Should fail to parse ' + conf.get('PARAM_REPLACE_INDICATOR') + '_[N] placeholders with invalid lengths', () => {
+  it('Should fail to parse ' + conf.get('PARAM_REPLACE_INDICATOR') + '-[N] placeholders with invalid lengths', () => {
     // first read the sample template
     var paramHelper = require('../../modules/param_helper');
     var parameterString = fs.readFileSync('./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json', {
@@ -74,34 +73,33 @@ describe('Paramter Helper Tests', () => {
     }).trim();
 
     var placeholder = conf.get('PARAM_REPLACE_INDICATOR');
-    console.log('matching ' + placeholder + '_\\d+');
 
-    assert(parameterString.match(new RegExp(placeholder + '_\\d+', 'g')).length > 0,
+    assert(parameterString.match(new RegExp(placeholder + '-\\d+', 'g')).length > 0,
       'In ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json \
-      Expected to have GEN_UNIQUE placeholders');
+      Expected to have GEN-UNIQUE placeholders');
     var parameters = JSON.parse(parameterString);
     // inject bad parameter
-    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '_33';
+    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '-33';
 
     assert.throws(() => {
       paramHelper.replaceKeyParameters(parameters);
     });
     // inject bad parameter
-    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '_1';
+    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '-1';
 
     assert.throws(() => {
       paramHelper.replaceKeyParameters(parameters);
     });
 
     // inject bad parameter
-    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '_2';
+    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '-2';
 
     assert.throws(() => {
       paramHelper.replaceKeyParameters(parameters);
     });
 
     // inject good parameter
-    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '_12';
+    parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '-12';
 
     assert.doesNotThrow(() => {
       paramHelper.replaceKeyParameters(parameters);
