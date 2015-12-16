@@ -64,8 +64,13 @@ router.post('/validate', function (req, res) {
       });
     })
     .finally(function () {
-      fs.unlink(fileName);
-      fs.unlink(parametersFileName);
+      if (fs.existsSync(fileName)) {
+        fs.unlink(fileName);
+      }
+
+      if (fs.existsSync(parametersFileName)) {
+        fs.unlink(parametersFileName);
+      }
     });
 });
 
