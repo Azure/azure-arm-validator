@@ -11,6 +11,9 @@ var express = require('express'),
   DelayedResponse = require('http-delayed-response');
 
 var debug = require('debug')('arm-validator:server');
+var parallelDeployLimit = parseInt(conf.get('PARALLEL_DEPLOY_LIMIT') || 20);
+debug('parallelDeployLimit: ' + parallelDeployLimit);
+var parallelDeploys = 0;
 
 function writeFileHelper(fs, fileName, parametersFileName, template, parameters) {
   var writeFile = RSVP.denodeify(fs.writeFile);
@@ -50,7 +53,6 @@ router.post('/validate', function (req, res) {
       debug('wrote: ');
       debug(JSON.stringify(req.body.template, null, '\t'));
       debug('file: ' + fileName);
-      debug(azureTools.validateTemplate);
       return azureTools.validateTemplate(fileName, parametersFileName);
     })
     .then(function () {
@@ -79,6 +81,12 @@ router.post('/deploy', function (req, res) {
   var fileName = Guid.raw(),
     rgName = conf.get('RESOURCE_GROUP_NAME_PREFIX') + Guid.raw(),
     parametersFileName = Guid.raw();
+
+  if (parallelDeploys >= parallelDeployLimit) {
+    return res.status(403).send({
+      error: 'Server has hit its parallel deployment limit. Try again later'
+    });
+  }
 
   var delayed = new DelayedResponse(req, res);
   // shortcut for res.setHeader('Content-Type', 'application/json')
@@ -110,6 +118,8 @@ router.post('/deploy', function (req, res) {
     debug(JSON.stringify(req.body.template, null, '\t'));
     debug('with paremeters: ');
     debug(JSON.stringify(req.body.parameters, null, '\t'));
+    parallelDeploys += 1;
+    debug('parallel deploy count: ' + parallelDeploys);
     return azureTools.testTemplate(fileName, parametersFileName, rgName);
   })
   .then(function () {
@@ -134,6 +144,7 @@ router.post('/deploy', function (req, res) {
     }));
   })
   .finally(function () {
+    parallelDeploys -= 1;
     fs.unlink(fileName);
     fs.unlink(parametersFileName);
 
