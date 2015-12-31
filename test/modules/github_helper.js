@@ -7,12 +7,12 @@ mockery.registerSubstitute('unirest', '../test/mocks/unirest');
 mockery.enable({
   warnOnUnregistered: false
 });
-var githuHelper = require('../../modules/github_helper');
+var githubHelper = require('../../modules/github_helper');
 
 describe('Github Helper Tests', () => {
 
   it('Gets the PR head repo link', () => {
-    return githuHelper.getPullRequestBaseLink('44')
+    return githubHelper.getPullRequestBaseLink('44')
     .then(link => {
       // validation is also done by mock
       assert.ok(link, 'Expected link to not be null');

@@ -9,12 +9,15 @@ exports.get = function (url) {
 };
 exports.end = function (cb) {
   // the repo Azure/azure-quickstart-templates is specified in .example-config.json
-  if (targetUrl === 'https://api.github.com/repos/Azure/azure-quickstart-templates/pulls/44') {
+  if (targetUrl.indexOf('https://api.github.com/repos/Azure/azure-quickstart-templates/pulls/44' > -1)) {
     var jsonString = fs.readFileSync('./test/assets/githubresponse.json', {
       encoding: 'utf8'
     }).trim();
     var jsonData = JSON.parse(jsonString);
     return cb({
+      headers: {
+        'x-ratelimit-remaining': 4999
+      },
       body: jsonData
     });
   }
