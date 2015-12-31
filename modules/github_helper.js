@@ -2,11 +2,15 @@ var unirest = require('unirest');
 var path = require('path');
 var conf = require('./config');
 var RSVP = require('rsvp');
+var debug = require('debug')('arm-validator:github');
 
 exports.getPullRequestBaseLink = function (prNumber) {
 
   return new RSVP.Promise((resolve, reject) => {
-    unirest.get('https://' + path.join('api.github.com/repos/', conf.get('GITHUB_REPO'), '/pulls/', prNumber.toString()))
+    var githubPath = 'https://' + path.join('api.github.com/repos/', conf.get('GITHUB_REPO'), '/pulls/', prNumber.toString());
+    githubPath += '?client_id=' + conf.get('GITHUB_CLIENT_ID') + '&client_secret=' + conf.get('GITHUB_CLIENT_SECRET');
+    debug('making github request: GET - ' + githubPath);
+    unirest.get(githubPath)
       .headers({
         'User-Agent': 'Mozilla/5.0'
       })
@@ -15,7 +19,7 @@ exports.getPullRequestBaseLink = function (prNumber) {
         if (response.error) {
           return reject(response.error);
         }
-
+        debug('Rate Limit Remaining: ' + response.headers['x-ratelimit-remaining']);
         return resolve(response.body);
       });
   })
