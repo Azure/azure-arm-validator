@@ -139,8 +139,8 @@ router.post('/deploy', function (req, res) {
       error: err.toString(),
       _rgName: rgName,
       command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json',
-      parameters: JSON.stringify(req.body.parameters),
-      template: JSON.stringify(req.body.template)
+      parameters: req.body.parameters,
+      template: req.body.template
     }));
   })
   .finally(function () {
