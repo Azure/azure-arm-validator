@@ -146,4 +146,4 @@ You'll also need to [setup a service principal](https://github.com/cloudfoundry-
 
 # Contributing
 
-See the [contributin guide](./CONTRIBUTING.md) file for details on how to contribute.
+See the [contributing guide](./CONTRIBUTING.md) file for details on how to contribute.
