@@ -9,7 +9,7 @@
   "description": "A tiny server which will validate Azure Resource Templates",
   "dependencies": {
     "azure-arm-resource": "^0.10.6",
-    "azure-cli": "^0.9.18",
+    "azure-cli": "^0.9.19",
     "azure-common": "^0.9.16",
     "azure-scripty": "git+https://sedouard@github.com/sedouard/azure-scripty.git",
     "body-parser": "~1.13.2",
