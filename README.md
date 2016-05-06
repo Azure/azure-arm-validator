@@ -1,6 +1,6 @@
 # azure-arm-validator
 
-[![Build Status](https://travis-ci.org/sedouard/azure-arm-validator.svg)](https://travis-ci.org/sedouard/azure-arm-validator)
+[![Build Status](https://travis-ci.org/Azure/azure-arm-validator.svg?branch=master)](https://travis-ci.org/Azure/azure-arm-validator)
 [![Code Climate](https://codeclimate.com/github/sedouard/azure-arm-validator/badges/gpa.svg)](https://codeclimate.com/github/sedouard/azure-arm-validator)
 
 A tiny server which will validate Azure Resource Manager scripts.
