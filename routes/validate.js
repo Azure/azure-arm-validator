@@ -44,36 +44,51 @@ function replaceSpecialParameterPlaceholders(req) {
 router.post('/validate', function (req, res) {
 
   var fileName = Guid.raw(),
-    parametersFileName = Guid.raw();
+    parametersFileName = Guid.raw(),
+    promise = new RSVP.Promise((resolve) => {
+      resolve();
+    });
 
   replaceSpecialParameterPlaceholders(req);
 
-  writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
-    .then(function () {
-      debug('wrote: ');
-      debug(JSON.stringify(req.body.template, null, '\t'));
-      debug('file: ' + fileName);
-      return azureTools.validateTemplate(fileName, parametersFileName);
-    })
-    .then(function () {
-      return res.send({
-        result: 'Template Valid'
+  debug('pull request number: ' + req.body.pull_request);
+  if (req.body.pull_request) {
+    promise = promise
+      .then(() => {
+        return replaceRawLinksForPR(req.body.template, req.body.pull_request);
+      })
+      .then((modifiedTemplate) => {
+        debug('modified template is:');
+        debug(modifiedTemplate);
+        req.body.template = modifiedTemplate;
       });
-    })
-    .catch(function (err) {
-      return res.status(400).send({
-        error: err.toString()
-      });
-    })
-    .finally(function () {
-      if (fs.existsSync(fileName)) {
-        fs.unlink(fileName);
-      }
+  }
 
-      if (fs.existsSync(parametersFileName)) {
-        fs.unlink(parametersFileName);
-      }
-    });
+  promise.then(() => {
+    writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
+      .then(function () {
+        return azureTools.validateTemplate(fileName, parametersFileName);
+      })
+      .then(function () {
+        return res.send({
+          result: 'Template Valid'
+        });
+      })
+      .catch(function (err) {
+        return res.status(400).send({
+          error: err.toString()
+        });
+      })
+      .finally(function () {
+        if (fs.existsSync(fileName)) {
+          fs.unlink(fileName);
+        }
+
+        if (fs.existsSync(parametersFileName)) {
+          fs.unlink(parametersFileName);
+        }
+      });
+  });
 });
 
 router.post('/deploy', function (req, res) {
