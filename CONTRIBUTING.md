@@ -21,3 +21,7 @@ grunt test
 ```
 
 These are the same tests that are ran in Travis CI. Happy coding!
+
+# Adding a New Replacement Scheme
+
+To add a new replacement scheme (e.g. `GEN-SSH-PUB-KEY`), create a new file in the replacementSchemes directory that exports a `replacementScheme` object with keys `indicator` and `value`. If you want, you can add a configuration key to the .example.conf file (and the .conf.json file based on it) and read it using the conf.get function. See `replacementScheme/genSshPubKey.js` for an example.
