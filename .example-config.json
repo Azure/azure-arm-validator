@@ -9,7 +9,6 @@
   "RESOURCE_GROUP_NAME_PREFIX": "qstci-",
   "MONGO_URL": "mongodb://localhost:27017/arm-validator",
   "PARAM_REPLACE_INDICATOR": "GEN-UNIQUE",
-  "SSH_PUBLIC_KEY": "ssh-rsa create an ssh public key using ssh-keygen",
   "GITHUB_REPO": "Azure/azure-quickstart-templates",
   "GITHUB_CLIENT_ID": "00000000-0000-0000-0000-000000000000",
   "GITHUB_CLIENT_SECRET": "00000000-0000-0000-0000-000000000000",

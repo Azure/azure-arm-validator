@@ -1,7 +1,1 @@
-var module = require('module')
-var conf = require('../modules/config');
-
-var replacementScheme = {'indicator': 'GEN-SSH-PUB_KEY', 'value': conf.get('SSH_PUBLIC_KEY')};
-
-module.exports = {'replacementScheme': replacementScheme}
-
+module.exports = {'indicator': 'GEN-SSH-PUB-KEY', 'value': 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCuFe+wAvA9tIOjAEGhJ7qtMhh3Z8RFPz8KTW6ZQvgXpeubIbXr4T71AJNLcXiXaeOUobRiMfdEG11qaMWW7g8cCxIPLZ+FhONyaOnjzOfun0EhrUUA7dgdM2RA0Co1HZdKx9m2LcA8ZuR8nCD+2b7DOTHuy5AvJZm7UTN5aTrhEwInw+AlrMEtQqzmMtcbKlOjh1X4xjztMfoMge6yWzIZEm3x7K+XLEiaIp95lFdzSMyIuwG3zkfRJU1TOkdCIc1VNvBEmIdx1y2fS1wZmbkCq1mzQT21pewJMjpIFiUkyd51nZ/wJGVYDvFj71v64CEa3sTBU3Q9JvGGtmfH6WC1 negat@jumpbox'};
