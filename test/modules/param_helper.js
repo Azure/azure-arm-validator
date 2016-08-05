@@ -17,7 +17,7 @@ describe('Paramter Helper Tests', () => {
     var placeholder = conf.get('PARAM_REPLACE_INDICATOR');
     assert(parameterString.match(new RegExp(placeholder, 'g')).length > 0,
       'In ./test/assets/dokku-vm/azuredeploy.parameters.json \
-      Expected ./test/assets/dokku-vm/azuredeploy.parameters.json to have GEN-UNIQUE placeholders');
+Expected ./test/assets/dokku-vm/azuredeploy.parameters.json to have GEN-UNIQUE placeholders');
     var parameters = JSON.parse(parameterString);
 
     parameters = paramHelper.replaceKeyParameters(parameters);
@@ -32,8 +32,8 @@ describe('Paramter Helper Tests', () => {
     parameterString = JSON.stringify(parameters);
 
     assert.equal(parameterString.match(new RegExp(placeholder, 'g')), null, 'In \
-      ./test/assets/dokku-vm/azuredeploy.parameters.json \
-      Expected all GEN-UNIQUE parameters to be replaced');
+./test/assets/dokku-vm/azuredeploy.parameters.json \
+Expected all GEN-UNIQUE parameters to be replaced');
   });
 
   it('Should replace ' + conf.get('PARAM_REPLACE_INDICATOR') + '-[N] placeholder with a unqiue [N] character parameter', () => {
@@ -47,7 +47,7 @@ describe('Paramter Helper Tests', () => {
 
     assert(parameterString.match(new RegExp(placeholder + '-\\d+', 'g')).length > 0,
       'In ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json \
-      Expected ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json to have GEN-UNIQUE placeholders');
+Expected ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json to have GEN-UNIQUE placeholders');
     var parameters = JSON.parse(parameterString);
 
     parameters = paramHelper.replaceKeyParameters(parameters);
@@ -65,6 +65,33 @@ describe('Paramter Helper Tests', () => {
     assert.equal(parameterString.match(new RegExp(placeholder + '-\\d+'), null, 'Expected all ' + placeholder + '-[N] parameters to be replaced'));
   });
 
+  // TEST SSH-KEY
+  it('Should replace GEN-SSH-PUB-KEY with an ssh key.', () => {
+    // first read the sample template
+    var paramHelper = require('../../modules/param_helper');
+    var parameterString = fs.readFileSync('./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json', {
+      encoding: 'utf8'
+    }).trim();
+
+    var placeholder = 'GEN-SSH-PUB-KEY';
+
+    // check the specific gen-xxxx exists in conf and azuredeploy.json
+    assert(parameterString.match(new RegExp(placeholder, 'g')).length > 0,
+      'In ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json \
+Expected ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json to have GEN-UNIQUE placeholders');
+    var parameters = JSON.parse(parameterString);
+
+    parameters = paramHelper.replaceKeyParameters(parameters);
+
+    assert.equal(parameters.parameters.sshKeyData.value.length, 394,
+      'In ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json Expected parameters.parameters.jobId.length to be 394. SSHKEY: ' + parameters.parameters.sshKeyData.value);
+
+    parameterString = JSON.stringify(parameters);
+
+    // check all placeholders are gone
+    assert.equal(parameterString.match(new RegExp(placeholder + '-\\d+'), null, 'Expected all ' + placeholder + ' gen-guid parameters to be replaced'));
+  });
+
   it('Should fail to parse ' + conf.get('PARAM_REPLACE_INDICATOR') + '-[N] placeholders with invalid lengths', () => {
     // first read the sample template
     var paramHelper = require('../../modules/param_helper');
@@ -76,7 +103,7 @@ describe('Paramter Helper Tests', () => {
 
     assert(parameterString.match(new RegExp(placeholder + '-\\d+', 'g')).length > 0,
       'In ./test/assets/dokku-vm/azuredeploy.parameters.gen_unique_var.json \
-      Expected to have GEN-UNIQUE placeholders');
+Expected to have GEN-UNIQUE placeholders');
     var parameters = JSON.parse(parameterString);
     // inject bad parameter
     parameters.parameters.adminUsername = conf.get('PARAM_REPLACE_INDICATOR') + '-33';

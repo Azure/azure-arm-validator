@@ -119,6 +119,7 @@ A configuration file example is provided at [`./.example-config.json`](./.exampl
 ```json
 {
   "comment": "You can either set these values as environment variables or to a file called '.config.json' at the root of the repo",
+  "PATH_TO_ROOT": "must not end in a slash",
   "AZURE_CLIENT_ID": "00000000-0000-0000-0000-000000000000",
   "AZURE_TENANT_ID": "00000000-0000-0000-0000-000000000000",
   "AZURE_CLIENT_SECRET": "00000000-0000-0000-0000-000000000000",
@@ -127,9 +128,6 @@ A configuration file example is provided at [`./.example-config.json`](./.exampl
   "RESOURCE_GROUP_NAME_PREFIX": "qstci-",
   "MONGO_URL": "mongodb://localhost:27017/arm-validator",
   "PARAM_REPLACE_INDICATOR": "GEN_UNIQUE",
-  "SSH_KEY_REPLACE_INDICATOR": "GEN_SSH_PUB_KEY",
-  "SSH_PUBLIC_KEY": "ssh-rsa create an ssh public key using ssh-keygen",
-  "PASSWORD_REPLACE_INDICATOR": "GEN_PASSWORD",
   "GITHUB_REPO": "Azure/azure-quickstart-templates"
 }
 ```

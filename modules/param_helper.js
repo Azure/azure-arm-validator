@@ -2,6 +2,9 @@ var conf = require('./config');
 var Guid = require('guid');
 var debug = require('debug')('arm-validator:param_helper');
 var assert = require('assert');
+var fs = require('fs');
+
+var replacementSchemesDir = conf.get('PATH_TO_ROOT') + '/' + 'replacementSchemes/';
 
 exports.replaceKeyParameters = function (parameters) {
   var parametersString = JSON.stringify(parameters);
@@ -27,10 +30,17 @@ exports.replaceKeyParameters = function (parameters) {
     });
   }
 
-  parametersString = parametersString.replace(new RegExp(conf.get('SSH_KEY_REPLACE_INDICATOR'), 'g'), conf.get('SSH_PUBLIC_KEY'));
-  parametersString = parametersString.replace(new RegExp(conf.get('PASSWORD_REPLACE_INDICATOR'), 'g'), 'ciP$ss' + Guid.raw().replace(/-/g, '').substring(0, 16));
+  // do all other replacement; don't do GEN_UNIQUE here because
+  // the truncated and non-trucated versions need to happen in the right order,
+  // which we don't enforce in this loop
+  var replacementSchemeFiles = fs.readdirSync(replacementSchemesDir);
+  for (var i = 0; i < replacementSchemeFiles.length; i = i + 1) {
+    var replacementScheme = require(replacementSchemesDir + replacementSchemeFiles[i]);
+    parametersString = parametersString.replace(replacementScheme.indicator, replacementScheme.value);
+  }
 
   debug('rendered parameters string: ');
   debug(parametersString);
   return JSON.parse(parametersString);
 };
+
