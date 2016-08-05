@@ -1,6 +1,6 @@
 {
   "comment": "You can either set these values as environment variables or to a file called '.config.json' at the root of the repo",
-  "PATH_TO_ROOT": "must not end in a slash",
+  "PATH_TO_ROOT": "/home/negat/repos/solutionTemplateValidator",
   "AZURE_CLIENT_ID": "00000000-0000-0000-0000-000000000000",
   "AZURE_TENANT_ID": "00000000-0000-0000-0000-000000000000",
   "AZURE_CLIENT_SECRET": "00000000-0000-0000-0000-000000000000",
@@ -8,7 +8,6 @@
   "TEST_RESOURCE_GROUP_NAME": "azure_test_rg",
   "RESOURCE_GROUP_NAME_PREFIX": "qstci-",
   "MONGO_URL": "mongodb://localhost:27017/arm-validator",
-  "PARAM_REPLACE_INDICATOR": "GEN-UNIQUE",
   "SSH_PUBLIC_KEY": "ssh-rsa create an ssh public key using ssh-keygen",
   "GITHUB_REPO": "Azure/azure-quickstart-templates",
   "GITHUB_CLIENT_ID": "00000000-0000-0000-0000-000000000000",
