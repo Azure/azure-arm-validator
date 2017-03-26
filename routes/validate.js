@@ -40,6 +40,9 @@ function replaceRawLinksForPR(template, prNumber) {
 // replaces
 function replaceSpecialParameterPlaceholders(req) {
   req.body.parameters = paramHelper.replaceKeyParameters(req.body.parameters);
+  if (req.body.preReqParameters) {
+    req.body.preReqParameters = paramHelper.replaceKeyParameters(req.body.preReqParameters);
+  }
 }
 router.post('/validate', function (req, res) {
 
@@ -95,7 +98,9 @@ router.post('/deploy', function (req, res) {
 
   var fileName = Guid.raw(),
     rgName = conf.get('RESOURCE_GROUP_NAME_PREFIX') + Guid.raw(),
-    parametersFileName = Guid.raw();
+    parametersFileName = Guid.raw(),
+    preReqFileName,
+    preReqParametersFileName;
 
   if (parallelDeploys >= parallelDeployLimit) {
     return res.status(403).send({
@@ -125,6 +130,15 @@ router.post('/deploy', function (req, res) {
       });
   }
 
+  if (req.body.preReqTemplate) {
+    promise = promise.then(() => {
+      preReqFileName = Guid.raw();
+      preReqParametersFileName = Guid.raw();
+      return writeFileHelper(fs, preReqFileName, preReqParametersFileName, req.body.preReqTemplate, req.body.preReqParameters);
+    });
+  }
+
+
   promise.then(() => {
     return writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters);
   })
@@ -135,7 +149,11 @@ router.post('/deploy', function (req, res) {
     debug(JSON.stringify(req.body.parameters, null, '\t'));
     parallelDeploys += 1;
     debug('parallel deploy count: ' + parallelDeploys);
-    return azureTools.testTemplate(fileName, parametersFileName, rgName);
+    if (preReqFileName) {
+      return azureTools.testTemplateWithPreReq(rgName, fileName, parametersFileName, preReqFileName, preReqParametersFileName);
+    } else {
+      return azureTools.testTemplate(rgName, fileName, parametersFileName);
+    }
   })
   .then(function () {
     debug('Deployment Successful');
@@ -162,6 +180,14 @@ router.post('/deploy', function (req, res) {
     parallelDeploys -= 1;
     fs.unlink(fileName);
     fs.unlink(parametersFileName);
+
+    if (fs.existsSync(preReqFileName)) {
+      fs.unlink(preReqFileName);
+    }
+
+    if (fs.existsSync(preReqParametersFileName)) {
+      fs.unlink(preReqParametersFileName);
+    }
 
     azureTools.deleteGroup(rgName)
       .then(() => {

@@ -10,9 +10,37 @@
   "PARAM_REPLACE_INDICATOR": "GEN-UNIQUE",
   "SSH_KEY_REPLACE_INDICATOR": "GEN-SSH-PUB_KEY",
   "SSH_PUBLIC_KEY": "ssh-rsa create an ssh public key using ssh-keygen",
+
+  "GUID_REPLACE_INDICATOR": "GEN-GUID",
   "PASSWORD_REPLACE_INDICATOR": "GEN-PASSWORD",
+  "ENV_PREFIX_REPLACE_INDICATOR": "GET-ENV-",
+
   "GITHUB_REPO": "Azure/azure-quickstart-templates",
   "GITHUB_CLIENT_ID": "00000000-0000-0000-0000-000000000000",
   "GITHUB_CLIENT_SECRET": "00000000-0000-0000-0000-000000000000",
-  "AAD_CLIENT_ID_INDICATOR": "GEN-AAD"
+  "AAD_CLIENT_ID_INDICATOR": "GEN-AAD",
+
+  "ciAzureTenatId": "Tenant Id of Azure Subscription",
+  "ciAzureSubscriptionId": "Id of Azure Subscription",
+  "ciAzureClientId": "Client ID to access Azure Subscription",
+  "ciAzureClientObjectId": "AD Application Object Id",
+  "ciAzureClidntIdSecret": "Secret of Client ID to access Azure Subscription",
+
+  "ciResourceGroupName": "Existing resource group with pre-created resources",
+  "ciStorageAccountName" : "Existing storage account with in the resource group",
+  "ciSpecializedWinVHDUri": "Specialized Windows VHD URI. This should be in same region as of deployments.",
+  "ciGeneralizedWinVHDUri": "Generalized Windows VHD URI. This should be in same region as of deployments.",
+
+  "ciKeyVaultName" : "Name of key vault",
+  "ciKeyVaultFqdnUri" : "https://keyvalutname.keyvault.azure.net",
+  "ciKeyVaultResourceId" : "ARM resource id for key vault",
+  "ciKeyVaultSSLSecretName" : "Secret name for SSL certificate in key vault",
+  "ciKeyVaultSSLSecretUri" : "URI for SSL certificate secret in key vault",
+
+  "ciCustomFqdnName" : "Fully qualified custom domain name, properly configured with CNAME mapping",
+  "ciCustomWebAppName": "First part of custom fqdn name",
+  "ciCustomDomainSSLCertPassword": "SSL certificate password",
+  "ciCustomDomainSSLCertThumbprint": "SSL certificate thumbprint",
+  "ciCustomDomainSSLCertPfxData": "SSL certificate PFX data in base 64 encoded format"
+
 }
