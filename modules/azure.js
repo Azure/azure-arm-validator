@@ -163,15 +163,15 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
         var keyValue = response.properties.outputs[key].value;
         parametersString = parametersString.replace(new RegExp('GET-PREREQ-' + key, 'g'), keyValue);
       }
- 
-      // Handle dynamic pre-req mapping based on name mapping
-      var parametersObject = JSON.parse(parametersString);
-      for (var key in response.properties.outputs) {
-        if (parametersObject.parameters[key]) {
-          parametersObject.parameters[key].value = response.properties.outputs[key].value;
-        }
-      }
-      parametersString = JSON.stringify(parametersObject);
+      
+      ////// Handle dynamic pre-req mapping based on name mapping
+      ////var parametersObject = JSON.parse(parametersString);
+      ////for (var key in response.properties.outputs) {
+      ////  if (parametersObject.parameters[key]) {
+      ////    parametersObject.parameters[key].value = response.properties.outputs[key].value;
+      ////  }
+      ////}
+      ////parametersString = JSON.stringify(parametersObject);
 
       fs.writeFileSync(parametersFile, parametersString, 'utf8');
 

@@ -31,19 +31,19 @@ exports.replaceKeyParameters = function (parameters) {
   parametersString = parametersString.replace(new RegExp(conf.get('PASSWORD_REPLACE_INDICATOR'), 'g'), 'ciP$ss' + Guid.raw().replace(/-/g, '').substring(0, 16));
   parametersString = parametersString.replace(new RegExp(conf.get('GUID_REPLACE_INDICATOR'), 'g'), Guid.raw());
 
-  // replace any other environment variables
-  matches = parametersString.match(new RegExp(conf.get('ENV_PREFIX_REPLACE_INDICATOR') + '[a-zA-Z0-9]+', 'g'));
+  // This check should be done at the end, after replacing GEN-GUID, GEN-UNIQUE, GEN-UNIQUE-n etc.
+  matches = parametersString.match(new RegExp(conf.get('ENV_PREFIX_REPLACE_INDICATOR') + '[a-zA-Z0-9\\-]+', 'g'));
   if (matches) {
     matches.forEach(match => {
       var splitPoint = conf.get('ENV_PREFIX_REPLACE_INDICATOR').length;
       var envKeyName = match.substring(splitPoint, match.length);
       var replaceValue = conf.get(envKeyName);
-      console.log('replacing: ' + match);
-      console.log('with:' + replaceValue);
+      debug('replacing: ' + match);
+      debug('with:' + replaceValue);
       parametersString = parametersString.replace(match, replaceValue);
     });
   }
-
+ 
   debug('rendered parameters string: ');
   debug(parametersString);
   return JSON.parse(parametersString);
