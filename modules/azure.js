@@ -23,10 +23,10 @@ exports.login = function () {
 
 exports.validateTemplate = function (templateFile, parametersFile) {
   var cmd = {
-    command: 'group template validate',
+    command: 'group deployment validate',
     'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
     'template-file': templateFile,
-    'parameters-file': parametersFile
+    'parameters': parametersFile
   };
   debug('DEBUG: using template file:');
   debug(templateFile);
@@ -39,7 +39,9 @@ function createGroup(groupName) {
   debug('creating resource group: ' + groupName + ' in region ' + conf.get('AZURE_REGION'));
   var cmd = {
     command: 'group create',
-    positional: [groupName, conf.get('AZURE_REGION')]
+    'name': groupName,
+    'location': conf.get('AZURE_REGION')
+
   };
   return invoke.call(scripty, cmd);
 }
@@ -65,8 +67,8 @@ exports.deleteExistingGroups = function () {
 exports.deleteGroup = function (groupName) {
   var cmd = {
     command: 'group delete',
-    quiet: '',
-    positional: [groupName]
+    'name': groupName,
+    'yes': '-y',
   };
   // first, remove tracking entry in db
   return mongoHelper.connect()
@@ -109,7 +111,7 @@ exports.testTemplate = function (rgName, templateFile, parametersFile) {
         command: 'group deployment create',
         'resource-group': rgName,
         'template-file': templateFile,
-        'parameters-file': parametersFile
+        'parameters': parametersFile
       };
       // now deploy!
       return invoke.call(scripty, cmd);
@@ -147,7 +149,7 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
         command: 'group deployment create',
         'resource-group': rgName,
         'template-file': preReqTemplateFile,
-        'parameters-file': preReqParametersFile
+        'parameters': preReqParametersFile
       };
       // now deploy!
       return invoke.call(scripty, cmd);
@@ -179,9 +181,10 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
         command: 'group deployment create',
         'resource-group': rgName,
         'template-file': templateFile,
-        'parameters-file': parametersFile
+        'parameters': parametersFile
       };
       // now deploy!
       return invoke.call(scripty, cmd);
     });
 };
+
