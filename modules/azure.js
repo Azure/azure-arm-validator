@@ -148,8 +148,7 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
       var cmd = {
         command: 'group deployment create',
         'resource-group': rgName,
-        'template-file': preReqTemplateFile,
-        'parameters': preReqParametersFile
+        'template-file': preReqTemplateFile
       };
       // now deploy!
       return invoke.call(scripty, cmd);
