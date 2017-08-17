@@ -1,11 +1,11 @@
-var scripty-cli2 = require('azure-scripty-cli2'),
+var scriptycli2 = require('azure-scripty-cli2'),
   conf = require('./config'),
   RSVP = require('rsvp'),
   fs = require('fs'),
   debug = require('debug')('arm-validator:azure'),
   mongoHelper = require('./mongo_helper');
 
-var invoke = RSVP.denodeify(scripty-cli2.invoke);
+var invoke = RSVP.denodeify(scriptycli2.invoke);
 
 exports.login = function () {
   var cmd = {
@@ -17,8 +17,8 @@ exports.login = function () {
     arm = {
       command: 'config mode arm'
     };
-  return invoke.call(scripty-cli2, cmd)
-    .then(invoke.call(scripty-cli2, arm));
+  return invoke.call(scriptycli2, cmd)
+    .then(invoke.call(scriptycli2, arm));
 };
 
 exports.validateTemplate = function (templateFile, parametersFile) {
@@ -32,7 +32,7 @@ exports.validateTemplate = function (templateFile, parametersFile) {
   debug(templateFile);
   debug('using paramters:');
   debug(parametersFile);
-  return invoke.call(scripty-cli2, cmd);
+  return invoke.call(scriptycli2, cmd);
 };
 
 exports.validateTemplateWithPreReq = function (templateFile, parametersFile, preReqTemplateFile, preReqParametersFile) {
@@ -49,7 +49,7 @@ exports.validateTemplateWithPreReq = function (templateFile, parametersFile, pre
     break;
   }
 
-  return invoke.call(scripty-cli2, cmd)
+  return invoke.call(scriptycli2, cmd)
     .then(() => {
       var cmd = {
         command: 'group deployment validate',
@@ -64,7 +64,7 @@ exports.validateTemplateWithPreReq = function (templateFile, parametersFile, pre
       }
 
       // now deploy!
-      return invoke.call(scripty-cli2, cmd);
+      return invoke.call(scriptycli2, cmd);
     });
 }
 
@@ -77,7 +77,7 @@ function createGroup(groupName) {
     'location': conf.get('AZURE_REGION')
 
   };
-  return invoke.call(scripty-cli2, cmd);
+  return invoke.call(scriptycli2, cmd);
 }
 
 exports.deleteExistingGroups = function () {
@@ -114,7 +114,7 @@ exports.deleteGroup = function (groupName) {
         name: groupName
       });
     })
-    .then(() => invoke.call(scripty-cli2, cmd))
+    .then(() => invoke.call(scriptycli2, cmd))
     .then(() => debug('sucessfully deleted resource group: ' + groupName));
 };
 
@@ -154,7 +154,7 @@ exports.testTemplate = function (rgName, templateFile, parametersFile) {
       }
     
       // now deploy!
-      return invoke.call(scripty-cli2, cmd);
+      return invoke.call(scriptycli2, cmd);
     });
 };
 
@@ -198,7 +198,7 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
       }
 
       // now deploy!
-      return invoke.call(scripty-cli2, cmd);
+      return invoke.call(scriptycli2, cmd);
     })
     .then((response) => {
       debug('sucessfully deployed prereq resources');
@@ -236,7 +236,7 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
       }
 
       // now deploy!
-      return invoke.call(scripty-cli2, cmd);
+      return invoke.call(scriptycli2, cmd);
     });
 };
 
