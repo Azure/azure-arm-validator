@@ -1,11 +1,11 @@
-var scripty = require('azure-scripty'),
+var scripty-cli2 = require('azure-scripty-cli2'),
   conf = require('./config'),
   RSVP = require('rsvp'),
   fs = require('fs'),
   debug = require('debug')('arm-validator:azure'),
   mongoHelper = require('./mongo_helper');
 
-var invoke = RSVP.denodeify(scripty.invoke);
+var invoke = RSVP.denodeify(scripty-cli2.invoke);
 
 exports.login = function () {
   var cmd = {
@@ -17,8 +17,8 @@ exports.login = function () {
     arm = {
       command: 'config mode arm'
     };
-  return invoke.call(scripty, cmd)
-    .then(invoke.call(scripty, arm));
+  return invoke.call(scripty-cli2, cmd)
+    .then(invoke.call(scripty-cli2, arm));
 };
 
 exports.validateTemplate = function (templateFile, parametersFile) {
@@ -32,8 +32,42 @@ exports.validateTemplate = function (templateFile, parametersFile) {
   debug(templateFile);
   debug('using paramters:');
   debug(parametersFile);
-  return invoke.call(scripty, cmd);
+  return invoke.call(scripty-cli2, cmd);
 };
+
+exports.validateTemplateWithPreReq = function (templateFile, parametersFile, preReqTemplateFile, preReqParametersFile) {
+
+  var cmd = {
+    command: 'group deployment validate',
+    'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
+    'template-file': preReqTemplateFile
+  };
+
+  var preReqParamContent = JSON.parse(fs.readFileSync(preReqParametersFile));
+  for (var key in preReqParamContent.parameters) {
+    cmd['parameters'] = preReqParametersFile;
+    break;
+  }
+
+  return invoke.call(scripty-cli2, cmd)
+    .then(() => {
+      var cmd = {
+        command: 'group deployment validate',
+        'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
+        'template-file': templateFile
+      };
+
+      var parametersFileContent = JSON.parse(fs.readFileSync(parametersFile));
+      for (var key in parametersFileContent.parameters) {
+        cmd['parameters'] = parametersFile;
+        break;
+      }
+
+      // now deploy!
+      return invoke.call(scripty-cli2, cmd);
+    });
+}
+
 
 function createGroup(groupName) {
   debug('creating resource group: ' + groupName + ' in region ' + conf.get('AZURE_REGION'));
@@ -43,7 +77,7 @@ function createGroup(groupName) {
     'location': conf.get('AZURE_REGION')
 
   };
-  return invoke.call(scripty, cmd);
+  return invoke.call(scripty-cli2, cmd);
 }
 
 exports.deleteExistingGroups = function () {
@@ -80,7 +114,7 @@ exports.deleteGroup = function (groupName) {
         name: groupName
       });
     })
-    .then(() => invoke.call(scripty, cmd))
+    .then(() => invoke.call(scripty-cli2, cmd))
     .then(() => debug('sucessfully deleted resource group: ' + groupName));
 };
 
@@ -110,11 +144,17 @@ exports.testTemplate = function (rgName, templateFile, parametersFile) {
       var cmd = {
         command: 'group deployment create',
         'resource-group': rgName,
-        'template-file': templateFile,
-        'parameters': parametersFile
+        'template-file': templateFile
       };
+
+      var parametersFileContent = JSON.parse(fs.readFileSync(parametersFile));
+      for (var key in parametersFileContent.parameters) {
+        cmd['parameters'] = parametersFile;
+        break;
+      }
+    
       // now deploy!
-      return invoke.call(scripty, cmd);
+      return invoke.call(scripty-cli2, cmd);
     });
 };
 
@@ -150,8 +190,15 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
         'resource-group': rgName,
         'template-file': preReqTemplateFile
       };
+
+      var preReqParamContent = JSON.parse(fs.readFileSync(preReqParametersFile));
+      for (var key in preReqParamContent.parameters) {
+        cmd['parameters'] = preReqParametersFile;
+        break;
+      }
+
       // now deploy!
-      return invoke.call(scripty, cmd);
+      return invoke.call(scripty-cli2, cmd);
     })
     .then((response) => {
       debug('sucessfully deployed prereq resources');
@@ -179,11 +226,17 @@ exports.testTemplateWithPreReq = function (rgName, templateFile, parametersFile,
       var cmd = {
         command: 'group deployment create',
         'resource-group': rgName,
-        'template-file': templateFile,
-        'parameters': parametersFile
+        'template-file': templateFile
       };
+
+      var parametersFileContent = JSON.parse(fs.readFileSync(parametersFile));
+      for (var key in parametersFileContent.parameters) {
+        cmd['parameters'] = parametersFile;
+        break;
+      }
+
       // now deploy!
-      return invoke.call(scripty, cmd);
+      return invoke.call(scripty-cli2, cmd);
     });
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "arm-validator",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
@@ -9,9 +9,8 @@
   "description": "A tiny server which will validate Azure Resource Templates",
   "dependencies": {
     "azure-arm-resource": "^0.10.6",
-    "azure-cli": "^0.10.1",
     "azure-common": "^0.9.16",
-    "azure-scripty": "git+https://sedouard@github.com/sedouard/azure-scripty.git",
+    "azure-scripty-cli2": "git+https://github.com/SpektraSystems/azure-scripty-cli2.git",
     "body-parser": "~1.13.2",
     "cookie-parser": "~1.3.5",
     "debug": "~2.2.0",
