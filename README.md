@@ -10,7 +10,7 @@ A tiny server which will validate Azure Resource Manager scripts.
 You probably won't need this server. It's a glorified wrapper around the [azure-cli2](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) but is used by the [Azure Quickstart Templates](https://github.com/azure/azure-quickstart-templates) project for automated template deployments.
 
 # Pre-requisite
-- You must have Azure CLI V2 installed on server before deploying this server.
+- You must have Azure CLI V2 installed before deploying this server.
 
 ## Endpoints
 
