@@ -85,27 +85,27 @@ The server by default configuration will replace several special value type fiel
 - `GEN-PASSWORD` - Replaces this with a generated azure-compatible password, useful for virtual machine names.
 - `GEN-SSH-PUB-KEY` - Replaces this with a generated SSH public key
 
-+You can also create few resources in advance  which can be used by templates for automated validation. This includes a key vault with sample SSL certificate stored, specialized and generalized Windows Server VHD's, a custom domain and SSL cert data for Azure App Service templates.
- +
- +**Key Vault Related placeholders:**
- ++ **GEN-KEYVAULT-NAME** - use this placeholder to leverage an existing test keyvault in your templates
- ++ **GEN-KEYVAULT-FQDN-URI** - use this placeholder to get FQDN URI of existing test keyvault.
- ++ **GEN-KEYVAULT-RESOURCE-ID** - use this placeholder to get Resource ID of existing test keyvault.
- ++ **GEN-KEYVAULT-SSL-SECRET-NAME** - use this placeholder to use the sample SSL cert stored in the test keyvault
- ++ **GEN-KEYVAULT-SSL-SECRET-URI** - use this placeholder to use the sample SSL cert stored in the test keyvault
- +
- +** Existing VHD related placeholders:**
- ++ **GEN-SPECIALIZED-WINVHD-URI** - URI of a specialized Windows VHD stored in an existing storage account.
- ++ **GEN-GENERALIZED-WINVHD-URI** - URI of a generalized Windows VHD stored in an existing storage account.
- ++ **GEN-DATAVHD-URI** - URI of a sample data disk VHD stored in an existing storage account.
- ++ **GEN-VHDSTORAGEACCOUNT-NAME** - Name of storage account in which the VHD's are stored.
- ++ **GEN-VHDRESOURCEGROUP-NAME** - Name of resource group in which the existing storage account having VHD's resides.
- +
- +** Custom Domain & SSL Cert related placeholders:**
- ++ **GEN-CUSTOMFQDN-WEBAPP-NAME** - Placeholder for the name of azure app service where you'd want to attach custom domain.
- ++ **GEN-CUSTOM-FQDN-NAME** - Sample Custom domain which can be added to App Service created above.
- ++ **GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT** - SSL cert thumbpring for the custom domain used in above placeholder
- ++ **GEN-CUSTOM-DOMAIN-SSLCERT-PASSWORD** - Password of the SSL certificate used in above placeholder.
+You can pre-create few azure components which can be used by templates for automated validation. This includes a key vault with sample SSL certificate stored, specialized and generalized Windows Server VHD's, a custom domain and SSL cert data for Azure App Service templates.
+
+**Key Vault Related placeholders:**
++ **GEN-KEYVAULT-NAME** - use this placeholder to leverage an existing test keyvault in your templates
++ **GEN-KEYVAULT-FQDN-URI** - use this placeholder to get FQDN URI of existing test keyvault.
++ **GEN-KEYVAULT-RESOURCE-ID** - use this placeholder to get Resource ID of existing test keyvault.
++ **GEN-KEYVAULT-SSL-SECRET-NAME** - use this placeholder to use the sample SSL cert stored in the test keyvault
++ **GEN-KEYVAULT-SSL-SECRET-URI** - use this placeholder to use the sample SSL cert stored in the test keyvault
+
+** Existing VHD related placeholders:**
++ **GEN-SPECIALIZED-WINVHD-URI** - URI of a specialized Windows VHD stored in an existing storage account.
++ **GEN-GENERALIZED-WINVHD-URI** - URI of a generalized Windows VHD stored in an existing storage account.
++ **GEN-DATAVHD-URI** - URI of a sample data disk VHD stored in an existing storage account.
++ **GEN-VHDSTORAGEACCOUNT-NAME** - Name of storage account in which the VHD's are stored.
++ **GEN-VHDRESOURCEGROUP-NAME** - Name of resource group in which the existing storage account having VHD's resides.
+
+** Custom Domain & SSL Cert related placeholders:**
++ **GEN-CUSTOMFQDN-WEBAPP-NAME** - Placeholder for the name of azure app service where you'd want to attach custom domain.
++ **GEN-CUSTOM-FQDN-NAME** - Sample Custom domain which can be added to App Service created above.
++ **GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT** - SSL cert thumbpring for the custom domain used in above placeholder
++ **GEN-CUSTOM-DOMAIN-SSLCERT-PASSWORD** - Password of the SSL certificate used in above placeholder.
 
 In a typical `azuredeploy.parameters.json` your template file would look like:
 
