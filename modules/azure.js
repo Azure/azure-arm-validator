@@ -13,12 +13,8 @@ exports.login = function () {
       username: conf.get('AZURE_CLIENT_ID'),
       password: conf.get('AZURE_CLIENT_SECRET'),
       tenant: conf.get('AZURE_TENANT_ID')
-    },
-    arm = {
-      command: 'config mode arm'
     };
   return invoke.call(scriptycli2, cmd)
-    .then(invoke.call(scriptycli2, arm));
 };
 
 exports.validateTemplate = function (templateFile, parametersFile) {
