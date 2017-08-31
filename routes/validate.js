@@ -8,7 +8,8 @@ var express = require('express'),
   conf = require('../modules/config'),
   RSVP = require('rsvp'),
   githubHelper = require('../modules/github_helper'),
-  DelayedResponse = require('http-delayed-response');
+  DelayedResponse = require('http-delayed-response'),
+  tempDir = 'temp';
 
 var debug = require('debug')('arm-validator:server');
 var parallelDeployLimit = parseInt(conf.get('PARALLEL_DEPLOY_LIMIT') || 20);
@@ -46,8 +47,8 @@ function replaceSpecialParameterPlaceholders(req) {
 }
 router.post('/validate', function (req, res) {
 
-  var fileName = Guid.raw(),
-    parametersFileName = Guid.raw(),
+  var fileName = tempDir + '/' + Guid.raw(),
+    parametersFileName = tempDir + '/' + Guid.raw(),
     promise = new RSVP.Promise((resolve) => {
       resolve();
     }),
@@ -71,8 +72,8 @@ router.post('/validate', function (req, res) {
 
   if (req.body.preReqTemplate) {
     promise = promise.then(() => {
-      preReqFileName = Guid.raw();
-      preReqParametersFileName = Guid.raw();
+      preReqFileName = tempDir + '/' + Guid.raw();
+      preReqParametersFileName = tempDir + '/' + Guid.raw();
       return writeFileHelper(fs, preReqFileName, preReqParametersFileName, req.body.preReqTemplate, req.body.preReqParameters);
     });
   }
@@ -118,9 +119,9 @@ router.post('/validate', function (req, res) {
 
 router.post('/deploy', function (req, res) {
 
-  var fileName = Guid.raw(),
+  var fileName = tempDir + '/' + Guid.raw(),
     rgName = conf.get('RESOURCE_GROUP_NAME_PREFIX') + Guid.raw(),
-    parametersFileName = Guid.raw(),
+    parametersFileName = tempDir + '/' + Guid.raw(),
     preReqFileName,
     preReqParametersFileName;
 
@@ -154,8 +155,8 @@ router.post('/deploy', function (req, res) {
 
   if (req.body.preReqTemplate) {
     promise = promise.then(() => {
-      preReqFileName = Guid.raw();
-      preReqParametersFileName = Guid.raw();
+      preReqFileName = tempDir + '/' + Guid.raw();
+      preReqParametersFileName = tempDir + '/' + Guid.raw();
       return writeFileHelper(fs, preReqFileName, preReqParametersFileName, req.body.preReqTemplate, req.body.preReqParameters);
     });
   }
