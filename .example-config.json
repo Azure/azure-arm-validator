@@ -19,17 +19,13 @@
   "GITHUB_CLIENT_ID": "00000000-0000-0000-0000-000000000000",
   "GITHUB_CLIENT_SECRET": "00000000-0000-0000-0000-000000000000",
 
-  "AZURE-TENANT-ID": "Tenant Id of Azure Subscription",
-  "AZURE-SUBSCRIPTION-ID": "Id of Azure Subscription",
-  "AZURE-CLIENT-ID": "Client ID to access Azure Subscription",
-  "AZURE-CLIENT-SECRET": "Secret of Client ID to access Azure Subscription",
-  "AZURE-CLIENT-APP-ID": "AD Application Object Id",
   "SSH-PUB-KEY": "ssh-rsa create an ssh public key using ssh-keygen",
 
-  "RESOURCEGROUP-NAME": "Existing resource group with pre-created resources",
-  "STORAGEACCOUNT-NAME" : "Existing storage account with in the resource group",
+  "VHDRESOURCEGROUP-NAME": "Existing resource group with pre-created resources",
+  "VHDSTORAGEACCOUNT-NAME" : "Existing storage account with in the resource group",
   "SPECIALIZED-WINVHD-URI": "Specialized Windows VHD URI. This should be in same region as of deployments.",
   "GENERALIZED-WINVHD-URI": "Generalized Windows VHD URI. This should be in same region as of deployments.",
+  "DATAVHD-URI": "Data disk VHD URI. This should be in same region as of deployments.",
 
   "KEYVAULT-NAME" : "Name of key vault",
   "KEYVAULT-FQDN-URI" : "https://keyvalutname.keyvault.azure.net",
