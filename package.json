@@ -24,7 +24,8 @@
     "nconf": "^0.8.2",
     "rsvp": "^3.1.0",
     "serve-favicon": "~2.3.0",
-    "unirest": "^0.4.2"
+    "unirest": "^0.4.2",
+    "forever": "^0.15.3"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
