@@ -1,4 +1,4 @@
-# azure-arm-validator
+# azure-arm-validator 
 
 [![Build Status](https://travis-ci.org/Azure/azure-arm-validator.svg?branch=master)](https://travis-ci.org/Azure/azure-arm-validator)
 [![Code Climate](https://codeclimate.com/github/sedouard/azure-arm-validator/badges/gpa.svg)](https://codeclimate.com/github/sedouard/azure-arm-validator)
@@ -7,7 +7,10 @@ A tiny server which will validate Azure Resource Manager scripts.
 
 # What does it Do?
 
-You probably won't need this server. It's a glorified wrapper around the [azure-cli](https://npmjs.org/azure-cli) but is used by the [Azure Quickstart Templates](https://github.com/azure/azure-quickstart-templates) project for automated template deployments.
+You probably won't need this server. It's a glorified wrapper around the [azure-cli2](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) but is used by the [Azure Quickstart Templates](https://github.com/azure/azure-quickstart-templates) project for automated template deployments.
+
+# Pre-requisite
+- You must have Azure CLI V2 installed before deploying this server.
 
 ## Endpoints
 
@@ -81,6 +84,28 @@ The server by default configuration will replace several special value type fiel
 - `GEN-UNIQUE-[N]` - Replaces this with a generated unique value suitable for domain names, sotrage accounts and usernames. The length is specified by `[N]` where it can be any number between 3 to 32 inclusive. For example, `GEN_UNIQUE_22`.
 - `GEN-PASSWORD` - Replaces this with a generated azure-compatible password, useful for virtual machine names.
 - `GEN-SSH-PUB-KEY` - Replaces this with a generated SSH public key
+
+You can pre-create few azure components which can be used by templates for automated validation. This includes a key vault with sample SSL certificate stored, specialized and generalized Windows Server VHD's, a custom domain and SSL cert data for Azure App Service templates.
+
+**Key Vault Related placeholders:**
++ **GEN-KEYVAULT-NAME** - use this placeholder to leverage an existing test keyvault in your templates
++ **GEN-KEYVAULT-FQDN-URI** - use this placeholder to get FQDN URI of existing test keyvault.
++ **GEN-KEYVAULT-RESOURCE-ID** - use this placeholder to get Resource ID of existing test keyvault.
++ **GEN-KEYVAULT-SSL-SECRET-NAME** - use this placeholder to use the sample SSL cert stored in the test keyvault
++ **GEN-KEYVAULT-SSL-SECRET-URI** - use this placeholder to use the sample SSL cert stored in the test keyvault
+
+** Existing VHD related placeholders:**
++ **GEN-SPECIALIZED-WINVHD-URI** - URI of a specialized Windows VHD stored in an existing storage account.
++ **GEN-GENERALIZED-WINVHD-URI** - URI of a generalized Windows VHD stored in an existing storage account.
++ **GEN-DATAVHD-URI** - URI of a sample data disk VHD stored in an existing storage account.
++ **GEN-VHDSTORAGEACCOUNT-NAME** - Name of storage account in which the VHD's are stored.
++ **GEN-VHDRESOURCEGROUP-NAME** - Name of resource group in which the existing storage account having VHD's resides.
+
+** Custom Domain & SSL Cert related placeholders:**
++ **GEN-CUSTOMFQDN-WEBAPP-NAME** - Placeholder for the name of azure app service where you'd want to attach custom domain.
++ **GEN-CUSTOM-FQDN-NAME** - Sample Custom domain which can be added to App Service created above.
++ **GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT** - SSL cert thumbpring for the custom domain used in above placeholder
++ **GEN-CUSTOM-DOMAIN-SSLCERT-PASSWORD** - Password of the SSL certificate used in above placeholder.
 
 In a typical `azuredeploy.parameters.json` your template file would look like:
 
