@@ -33,6 +33,8 @@ sudo service mongod start
 #Configure MongoDB to run on system startup automatically by running this command
 sudo systemctl enable mongod.service
 
+#install bits for the app
+git clone https://github.com/Azure/azure-arm-validator
 
 ### don't think these will work from bash - need some other option
 #Enter MongoDB shell by running command mongo. 
@@ -46,3 +48,17 @@ sudo systemctl enable mongod.service
 
 #Database is now Ready. Update following value in your .config.json file
 #  "MONGO_URL": "mongodb://localhost:27017/arm-validator",
+
+#start the app
+#Npm install - this requires .config.json to be copied
+#If Application is successfully installed, move forward or look at the errors, install required dependencies and try again.
+#Now Application is ready to use. We can test it first by running manually before configuring to run in production. 
+#You might want to look at logs during first run to diagnose issues if any. To enable debug logs, display on console, run following command
+#export DEBUG=*
+#Run app manually by running following command
+#npm start
+
+#Application should start running now, if you enabled Debug before executing you should be able to see message like “listening on port 3000, logged in to subscription” etc.
+#If Application failed, look at the error and troubleshoot further. Common reason of failure is syntax error in .config.json file, fix the file and try running again
+#Application would stop running as soon as you press CTRL+C or exit terminal. We will use forever to configure this as service, which can run in background.
+#Sudo forever-service install armvalidator –-script ./bin/www 

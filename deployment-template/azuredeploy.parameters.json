@@ -4,9 +4,6 @@
   "parameters": {
     "adminUsername": {
       "value": "armvalidatoradmin"
-    },
-    "dnsLabelPrefix": {
-      "value": "qst-civalidator-a"
     }
   }
 }
