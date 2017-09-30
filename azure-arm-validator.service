@@ -1,0 +1,15 @@
+[Unit]
+Description=azure-arm-validator
+After=network.target
+
+[Service]
+ExecStart=/var/www/azure-arm-validator/app.js
+Restart=always
+User=nobody
+Group=nobody
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/var/www/azure-arm-validator
+
+[Install]
+WantedBy=multi-user.target

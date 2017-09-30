@@ -5,8 +5,11 @@
     "adminUsername": {
       "value": "armvalidatoradmin"
     },
-    "dnsLabelPrefix": {
-      "value": "qst-civalidator-a"
+    "publicIpAddressName": {
+      "value": "publicIp-a"
+    },
+    "publicIpAddressResourceGroup": {
+      "value": "template-bot-public-ips"
     }
   }
 }

@@ -169,6 +169,27 @@ The server uses MongoDB to record created resource groups to persistenence. On r
 
 You'll also need to [setup a service principal](https://github.com/cloudfoundry-incubator/bosh-azure-cpi-release/blob/master/docs/create-service-principal.md) for the server to access your azure subscription.
 
+# Deploying
+There is a template that will deploy an instance of the server.  The template is designed to be deployed between an "a" and "b" cluster for staging new releases.  The template expects the publicIP addresses to be existing and will attach those to the VM's nic when deployed.
+
+### .config.json
+You can add a "production" version of .config.json into the deployment-template folder.  The file will be ignored by git and if present when deployed, the script will install the config file and start the service.  If the config file is not found in staging, it must be installed manually and the service configured and started after deployment.  See service-start.sh if needed.
+
+To deploy between alternate resource groups you can use the command:
+
+```PowerShell
+.\Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory .\deployment-template -ResourceGroupLocation westus2 -UploadArtifacts -TemplateParametersFile .\deployment-template\azuredeploy.parameters.b.json -ResourceGroupName template-bot-b
+```
+
+```bash
+az-group-deploy -a deployment-template -l westus2 -u -e ./deployment-template/azuredeploy.parameters.b.json -g template-bot-b
+```
+
+Alternate between "a" and "b" with the parameters and resource group name.
+
+
 # Contributing
 
 See the [contributing guide](./CONTRIBUTING.md) file for details on how to contribute.
+
+
