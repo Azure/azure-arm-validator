@@ -3,7 +3,8 @@ userName="$1" #user name which will be used as the directory to clone the repo -
 artifactsLocation="$2"
 artifactsLocationSasToken="$3"
 
-appPath='var/www/azure-arm-validator'
+appPath='/var/www/azure-arm-validator'
+sudo mkdir $appPath
 
 #install azure cli
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
@@ -43,8 +44,9 @@ sudo systemctl enable mongod.service
 #git clone https://github.com/Azure/azure-arm-validator "/home/$userName/azure-arm-validator" #should probably pass this in, instead of hardcoding it
 git clone https://github.com/Azure/azure-arm-validator $appPath #should probably pass this in, instead of hardcoding it
 
-# copy the service file
-cp "$appPath/azure-arm-validator.service" 'etc/systemd/system'
+# copy the service file - not sure which one we need
+sudo cp "$appPath/azure-arm-validator.service" '/etc/systemd/system'
+sudo cp "$appPath/azure-arm-validator.service" '/lib/systemd/system'
 
 #Create a database where ARM validator will store its information.
 #We need to have at least one document inserted in the db. Use following command to insert document
@@ -60,6 +62,8 @@ if test "$rc" != "0"; then
     echo "curl failed with: $rc"
 else #start the app if the config file was staged
     echo "start the service if the config file was installed"
+    sudo cd "$appPath"
+    sudo npm install
     sudo systemctl daemon-reload
     sudo systemctl start azure-arm-validator
     
