@@ -21,10 +21,16 @@
         "description": "Password for the Virtual Machine."
       }
     },
-    "dnsLabelPrefix": {
+    "publicIpAddressName": {
       "type": "string",
       "metadata": {
-        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+        "description": "Name of the PublicIP to assign to the server."
+      }
+    },
+    "publicIpAddressResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group name of the PublicIP address."
       }
     },
     "_artifactsLocation": {
@@ -44,25 +50,12 @@
   "variables": {
     "nicName": "myVMNic",
     "subnetName": "Subnet",
-    "publicIPAddressName": "myPublicIP",
-    "vmName": "arm-template-bot",
+    "vmName": "[resourceGroup().name]",
     "virtualNetworkName": "MyVNET",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('virtualNetworkName'), variables('subnetName'))]",
     "nsgName": "nsg"
   },
   "resources": [
-    {
-      "apiVersion": "2017-09-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddressName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
-        }
-      }
-    },
     {
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -80,7 +73,7 @@
               "sourceAddressPrefix": "Internet",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 100,
+              "priority": 1000,
               "direction": "Inbound"
             }
           },
@@ -94,7 +87,7 @@
               "sourceAddressPrefix": "Internet",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 101,
+              "priority": 100,
               "direction": "Inbound"
             }
           }
@@ -134,8 +127,7 @@
       "name": "[variables('nicName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        "[variables('virtualNetworkName')]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -144,7 +136,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+                "id": "[resourceId(parameters('publicIpAddressResourceGroup'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpAddressName'))]"
               },
               "subnet": {
                 "id": "[variables('subnetRef')]"
@@ -160,7 +152,7 @@
       "name": "[variables('vmName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+        "[variables('nicName')]"
       ],
       "properties": {
         "hardwareProfile": {
@@ -211,7 +203,7 @@
               ]
             },
             "protectedSettings": {
-              "commandToExecute": "sh configure-bot.sh"
+              "commandToExecute": "[concat('sh configure-bot.sh ', parameters('adminUsername'), ' ', parameters('_artifactsLocation'), ' \"', parameters('_artifactsLocationSasToken'), '\"')]"
             }
           }
         }
@@ -221,11 +213,11 @@
   "outputs": {
     "hostname": {
       "type": "string",
-      "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
+      "value": "[reference(resourceId(parameters('publicIpAddressResourceGroup'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpAddressName')), '2017-09-01').dnsSettings.fqdn]"
     },
     "sshCommand": {
       "type": "string",
-      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
+      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(resourceId(parameters('publicIpAddressResourceGroup'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpAddressName')), '2017-09-01').dnsSettings.fqdn)]"
     }
   }
 }

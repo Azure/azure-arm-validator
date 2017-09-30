@@ -4,6 +4,12 @@
   "parameters": {
     "adminUsername": {
       "value": "armvalidatoradmin"
+    },
+    "publicIpAddressName": {
+      "value": "publicIp-a"
+    },
+    "publicIpAddressResourceGroup": {
+      "value": "template-bot-public-ips"
     }
   }
 }
