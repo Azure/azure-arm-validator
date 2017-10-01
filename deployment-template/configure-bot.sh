@@ -3,7 +3,8 @@ userName="$1" #user name which will be used as the directory to clone the repo -
 artifactsLocation="$2"
 artifactsLocationSasToken="$3"
 
-appPath='/var/www/azure-arm-validator'
+#appPath='/var/www/azure-arm-validator'
+appPath="/home/$userName/azure-arm-validator"
 sudo mkdir $appPath
 
 #install azure cli
@@ -44,10 +45,6 @@ sudo systemctl enable mongod.service
 #git clone https://github.com/Azure/azure-arm-validator "/home/$userName/azure-arm-validator" #should probably pass this in, instead of hardcoding it
 git clone https://github.com/Azure/azure-arm-validator $appPath #should probably pass this in, instead of hardcoding it
 
-# copy the service file - not sure which one we need
-sudo cp "$appPath/azure-arm-validator.service" '/etc/systemd/system'
-sudo cp "$appPath/azure-arm-validator.service" '/lib/systemd/system'
-
 #Create a database where ARM validator will store its information.
 #We need to have at least one document inserted in the db. Use following command to insert document
 mongo 'arm-validator' --eval 'db["arm-validator"].armvalidator.insert({"name":"arm-validator-db"})'
@@ -63,14 +60,23 @@ if test "$rc" != "0"; then
 else #start the app if the config file was staged
     echo "start the service if the config file was installed"
     sudo cd "$appPath"
-    sudo npm install
-    sudo systemctl daemon-reload
-    sudo systemctl start azure-arm-validator
+    #sudo npm install
+
+    # copy the service file - not sure which one we need and this isn't working right not anyway
+    #sudo cp "$appPath/azure-arm-validator.service" '/etc/systemd/system'
+    #sudo cp "$appPath/azure-arm-validator.service" '/lib/systemd/system'
+    #sudo chmod +x "$appPath/app.js"
+    #reset the service daemon and start the service
+    #sudo systemctl daemon-reload
+    #sudo systemctl start azure-arm-validator
     
-    #cd "$appPath"
-    #npm install
-    #sudo forever-service install armvalidator –-script ./bin/www
-    #sudo service armvalidator start
+    #setup the forever service
+    #-----------------------------------------------------------------
+    # currently this isn't working for some reason, need to run this interactively after deployment finishes
+    npm install
+    sudo forever-service install armvalidator –-script ./bin/www
+    sudo service armvalidator start
+
 fi
 
 #change ownership on the app, just to make life easier
