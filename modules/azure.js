@@ -19,19 +19,19 @@ exports.login = function () {
 
 exports.validateTemplate = function (templateFile, parametersFile, templateLink) {
   var cmd;
-    if (templateFile) {
-        cmd = {
-            command: 'group deployment validate',
-            'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
-            'template-file': templateFile,
-            'parameters': parametersFile
-        };
+  if (templateFile) {
+    cmd = {
+      command: 'group deployment validate',
+      'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
+      'template-file': templateFile,
+      'parameters': parametersFile
+      };
     } else if (templateLink) {
         cmd = {
-            command: 'group deployment validate',
-            'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
-            'template-uri': templateLink,
-            'parameters': parametersFile
+          command: 'group deployment validate',
+          'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
+          'template-uri': templateLink,
+          'parameters': parametersFile
         };
     }
   debug('DEBUG: using template file:');

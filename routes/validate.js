@@ -175,13 +175,13 @@ router.post('/deploy', function (req, res) {
     parallelDeploys += 1;
     debug('parallel deploy count: ' + parallelDeploys);
     if (preReqFileName) {
-		return azureTools.testTemplateWithPreReq(rgName, fileName, parametersFileName, preReqFileName, preReqParametersFileName);
-		} else if (req.body.template_link) {
-			return azureTools.testTemplate(rgName, null, parametersFileName, req.body.template_link);
-		} else {
-			return azureTools.testTemplate(rgName, fileName, parametersFileName);
-		}
-	})
+      return azureTools.testTemplateWithPreReq(rgName, fileName, parametersFileName, preReqFileName, preReqParametersFileName);
+    } else if (req.body.template_link) {
+      return azureTools.testTemplate(rgName, null, parametersFileName, req.body.template_link);
+    } else {
+      return azureTools.testTemplate(rgName, fileName, parametersFileName);
+    }
+  })
   .then(function () {
     debug('Deployment Successful');
     // stop sending long poll bytes
