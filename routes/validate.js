@@ -1,15 +1,15 @@
 var express = require('express'),
-    router = express.Router(),
-    path = require('path'),
-    azureTools = require('../modules/azure'),
-    paramHelper = require('../modules/param_helper'),
-    Guid = require('guid'),
-    fs = require('fs'),
-    conf = require('../modules/config'),
-    RSVP = require('rsvp'),
-    githubHelper = require('../modules/github_helper'),
-    DelayedResponse = require('http-delayed-response'),
-    tempDir = 'temp';
+  router = express.Router(),
+  path = require('path'),
+  azureTools = require('../modules/azure'),
+  paramHelper = require('../modules/param_helper'),
+  Guid = require('guid'),
+  fs = require('fs'),
+  conf = require('../modules/config'),
+  RSVP = require('rsvp'),
+  githubHelper = require('../modules/github_helper'),
+  DelayedResponse = require('http-delayed-response'),
+  tempDir = 'temp';
 
 var debug = require('debug')('arm-validator:server');
 var parallelDeployLimit = parseInt(conf.get('PARALLEL_DEPLOY_LIMIT') || 20);
@@ -17,73 +17,70 @@ debug('parallelDeployLimit: ' + parallelDeployLimit);
 var parallelDeploys = 0;
 
 function writeFileHelper(fs, fileName, parametersFileName, template, parameters) {
-    var writeFile = RSVP.denodeify(fs.writeFile);
-    return writeFile.call(fs, fileName, JSON.stringify(template, null, '\t'))
-        .then(function() {
-            return writeFile.call(fs, parametersFileName, JSON.stringify(parameters, null, '\t'));
-        });
+  var writeFile = RSVP.denodeify(fs.writeFile);
+  return writeFile.call(fs, fileName, JSON.stringify(template, null, '\t'))
+    .then(function () {
+      return writeFile.call(fs, parametersFileName, JSON.stringify(parameters, null, '\t'));
+    });
 }
 
 // replaces https://raw.githubusercontent.com links to upstream:master to the downstream repo
 function replaceRawLinksForPR(template, prNumber) {
-    var templateString = JSON.stringify(template);
-    // we make the assumption all links target a source on master
-    var replaceTarget = 'https://' + path.join('raw.githubusercontent.com/', conf.get('GITHUB_REPO'), '/master');
-    debug('replaceTarget: ' + replaceTarget);
-    return githubHelper.getPullRequestBaseLink(prNumber)
-        .then(link => {
-            // replace something like 'https://raw.githubusercontent.com/azure/azure-quickstart-templates/master'
-            // with 'https://raw.githubusercontent.com/user/azure-quickstart-templates/sourcebranch'
-            return JSON.parse(templateString.replace(new RegExp(replaceTarget, 'g'), link));
-        });
+  var templateString = JSON.stringify(template);
+  // we make the assumption all links target a source on master
+  var replaceTarget = 'https://' + path.join('raw.githubusercontent.com/', conf.get('GITHUB_REPO'), '/master');
+  debug('replaceTarget: ' + replaceTarget);
+  return githubHelper.getPullRequestBaseLink(prNumber)
+    .then(link => {
+      // replace something like 'https://raw.githubusercontent.com/azure/azure-quickstart-templates/master'
+      // with 'https://raw.githubusercontent.com/user/azure-quickstart-templates/sourcebranch'
+      return JSON.parse(templateString.replace(new RegExp(replaceTarget, 'g'), link));
+    });
 }
 
 // replaces
 function replaceSpecialParameterPlaceholders(req) {
-    console.log(req);
-    req.body.parameters = paramHelper.replaceKeyParameters(req.body.parameters);
-    if (req.body.preReqParameters) {
-        req.body.preReqParameters = paramHelper.replaceKeyParameters(req.body.preReqParameters);
-    }
+  req.body.parameters = paramHelper.replaceKeyParameters(req.body.parameters);
+  if (req.body.preReqParameters) {
+    req.body.preReqParameters = paramHelper.replaceKeyParameters(req.body.preReqParameters);
+  }
 }
+router.post('/validate', function (req, res) {
 
-router.post('/validate', function(req, res) {
+  var fileName = tempDir + '/' + Guid.raw(),
+    parametersFileName = tempDir + '/' + Guid.raw(),
+    promise = new RSVP.Promise((resolve) => {
+      resolve();
+    }),
+    preReqFileName,
+    preReqParametersFileName;
 
-    var fileName = tempDir + '/' + Guid.raw(),
-        parametersFileName = tempDir + '/' + Guid.raw(),
-        promise = new RSVP.Promise((resolve) => {
-            resolve();
-        }),
-        preReqFileName,
-        preReqParametersFileName;
+  replaceSpecialParameterPlaceholders(req);
 
-    replaceSpecialParameterPlaceholders(req);
+  debug('pull request number: ' + req.body.pull_request);
+  if (req.body.pull_request) {
+    promise = promise
+      .then(() => {
+        return replaceRawLinksForPR(req.body.template, req.body.pull_request);
+      })
+      .then((modifiedTemplate) => {
+        debug('modified template is:');
+        debug(modifiedTemplate);
+        req.body.template = modifiedTemplate;
+      });
+  }
 
-    debug('pull request number: ' + req.body.pull_request);
-    if (req.body.pull_request) {
-        promise = promise
-            .then(() => {
-                return replaceRawLinksForPR(req.body.template, req.body.pull_request);
-            })
-            .then((modifiedTemplate) => {
-                debug('modified template is:');
-                debug(modifiedTemplate);
-                //res.send('########################################################modfied is' + JSON.stringify(modifiedTemplate));
-                req.body.template = modifiedTemplate;
-            });
-    }
-
-    if (req.body.preReqTemplate) {
-        promise = promise.then(() => {
-            preReqFileName = tempDir + '/' + Guid.raw();
-            preReqParametersFileName = tempDir + '/' + Guid.raw();
-            return writeFileHelper(fs, preReqFileName, preReqParametersFileName, req.body.preReqTemplate, req.body.preReqParameters);
-        });
-    }
-
-    promise.then(() => {
-        writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
-            .then(function() {
+  if (req.body.preReqTemplate) {
+    promise = promise.then(() => {
+      preReqFileName = tempDir + '/' + Guid.raw();
+      preReqParametersFileName = tempDir + '/' + Guid.raw();
+      return writeFileHelper(fs, preReqFileName, preReqParametersFileName, req.body.preReqTemplate, req.body.preReqParameters);
+    });
+  }
+  
+  promise.then(() => {
+    writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
+      .then(function() {
                 if (preReqFileName) {
                     return azureTools.validateTemplateWithPreReq(fileName, parametersFileName, preReqFileName, preReqParametersFileName);
                 } else if (req.body.template_link) {
@@ -92,148 +89,142 @@ router.post('/validate', function(req, res) {
                     return azureTools.validateTemplate(fileName, parametersFileName);
                 }
             })
-            .then(function() {
-                return res.send({
-                    result: 'Template Valid'
-                });
-            })
-            .catch(function(err) {
-                return res.status(400).send({
-                    error: err.toString()
-                });
-            })
-            .finally(function() {
-                if (fs.existsSync(fileName)) {
-                    fs.unlink(fileName);
-                }
+      .then(function () {
+        return res.send({
+          result: 'Template Valid'
+        });
+      })
+      .catch(function (err) {
+        return res.status(400).send({
+          error: err.toString()
+        });
+      })
+      .finally(function () {
+        if (fs.existsSync(fileName)) {
+          fs.unlink(fileName);
+        }
 
-                if (fs.existsSync(parametersFileName)) {
-                    fs.unlink(parametersFileName);
-                }
-
-                if (fs.existsSync(preReqFileName)) {
-                    fs.unlink(preReqFileName);
-                }
-
-                if (fs.existsSync(preReqParametersFileName)) {
-                    fs.unlink(preReqParametersFileName);
-                }
-            });
-    });
+        if (fs.existsSync(parametersFileName)) {
+          fs.unlink(parametersFileName);
+        }
+      
+        if (fs.existsSync(preReqFileName)) {
+          fs.unlink(preReqFileName);
+        }
+      
+        if (fs.existsSync(preReqParametersFileName)) {
+          fs.unlink(preReqParametersFileName);
+        }
+      });
+  });
 });
 
-router.post('/deploy', function(req, res) {
+router.post('/deploy', function (req, res) {
 
-    var fileName = tempDir + '/' + Guid.raw(),
-        rgName = conf.get('RESOURCE_GROUP_NAME_PREFIX') + Guid.raw(),
-        parametersFileName = tempDir + '/' + Guid.raw(),
-        preReqFileName,
-        preReqParametersFileName;
+  var fileName = tempDir + '/' + Guid.raw(),
+    rgName = conf.get('RESOURCE_GROUP_NAME_PREFIX') + Guid.raw(),
+    parametersFileName = tempDir + '/' + Guid.raw(),
+    preReqFileName,
+    preReqParametersFileName;
 
-    if (parallelDeploys >= parallelDeployLimit) {
-        return res.status(403).send({
-            error: 'Server has hit its parallel deployment limit. Try again later'
-        });
-    }
-
-    var delayed = new DelayedResponse(req, res);
-    // shortcut for res.setHeader('Content-Type', 'application/json')
-    delayed.json();
-    replaceSpecialParameterPlaceholders(req);
-    delayed.start();
-    var promise = new RSVP.Promise((resolve) => {
-        resolve();
+  if (parallelDeploys >= parallelDeployLimit) {
+    return res.status(403).send({
+      error: 'Server has hit its parallel deployment limit. Try again later'
     });
+  }
 
-    debug('pull request number: ' + req.body.pull_request);
-    if (req.body.pull_request) {
-        promise = promise
-            .then(() => {
-                return replaceRawLinksForPR(req.body.template, req.body.pull_request);
-            })
-            .then((modifiedTemplate) => {
-                debug('modified template is:');
-                debug(modifiedTemplate);
-                req.body.template = modifiedTemplate;
-            });
+  var delayed = new DelayedResponse(req, res);
+  // shortcut for res.setHeader('Content-Type', 'application/json')
+  delayed.json();
+  replaceSpecialParameterPlaceholders(req);
+  delayed.start();
+  var promise = new RSVP.Promise((resolve) => {
+    resolve();
+  });
+
+  debug('pull request number: ' + req.body.pull_request);
+  if (req.body.pull_request) {
+    promise = promise
+      .then(() => {
+        return replaceRawLinksForPR(req.body.template, req.body.pull_request);
+      })
+      .then((modifiedTemplate) => {
+        debug('modified template is:');
+        debug(modifiedTemplate);
+        req.body.template = modifiedTemplate;
+      });
+  }
+
+  if (req.body.preReqTemplate) {
+    promise = promise.then(() => {
+      preReqFileName = tempDir + '/' + Guid.raw();
+      preReqParametersFileName = tempDir + '/' + Guid.raw();
+      return writeFileHelper(fs, preReqFileName, preReqParametersFileName, req.body.preReqTemplate, req.body.preReqParameters);
+    });
+  }
+
+
+  promise.then(() => {
+    return writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters);
+  })
+  .then(function () {
+    debug('deploying template: ');
+    debug(JSON.stringify(req.body.template, null, '\t'));
+    debug('with paremeters: ');
+    debug(JSON.stringify(req.body.parameters, null, '\t'));
+    parallelDeploys += 1;
+    debug('parallel deploy count: ' + parallelDeploys);
+    if (preReqFileName) {
+		return azureTools.testTemplateWithPreReq(rgName, fileName, parametersFileName, preReqFileName, preReqParametersFileName);
+		} else if (req.body.template_link) {
+			return azureTools.testTemplate(rgName, null, parametersFileName, req.body.template_link);
+		} else {
+			return azureTools.testTemplate(rgName, fileName, parametersFileName);
+		}
+	})
+  .then(function () {
+    debug('Deployment Successful');
+    // stop sending long poll bytes
+    delayed.stop();
+    return res.end(JSON.stringify({
+      result: 'Deployment Successful'
+    }));
+  })
+  .catch(function (err) {
+    debug(err);
+    debug('Deployment not Sucessful');
+    // stop sending long poll bytes
+    delayed.stop();
+    return res.end(JSON.stringify({
+      error: err.toString(),
+      _rgName: rgName,
+      command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json',
+      parameters: req.body.parameters,
+      template: req.body.template
+    }));
+  })
+  .finally(function () {
+    parallelDeploys -= 1;
+    fs.unlink(fileName);
+    fs.unlink(parametersFileName);
+
+    if (fs.existsSync(preReqFileName)) {
+      fs.unlink(preReqFileName);
     }
 
-    if (req.body.preReqTemplate) {
-        promise = promise.then(() => {
-            preReqFileName = tempDir + '/' + Guid.raw();
-            preReqParametersFileName = tempDir + '/' + Guid.raw();
-            return writeFileHelper(fs, preReqFileName, preReqParametersFileName, req.body.preReqTemplate, req.body.preReqParameters);
-        });
+    if (fs.existsSync(preReqParametersFileName)) {
+      fs.unlink(preReqParametersFileName);
     }
 
-
-    promise.then(() => {
-            return writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters);
-        })
-        .then(function() {
-            debug('deploying template: ');
-            debug(JSON.stringify(req.body.template, null, '\t'));
-            debug('with paremeters: ');
-            debug(JSON.stringify(req.body.parameters, null, '\t'));
-            parallelDeploys += 1;
-            debug('parallel deploy count: ' + parallelDeploys);
-            if (preReqFileName) {
-                return azureTools.testTemplateWithPreReq(rgName, fileName, parametersFileName, preReqFileName, preReqParametersFileName);
-            } else if (req.body.template_link) {
-                return azureTools.testTemplate(rgName, null, parametersFileName, req.body.template_link);
-            } else {
-                return azureTools.testTemplate(rgName, fileName, parametersFileName);
-            }
-        })
-        .then(function() {
-            debug('Deployment Successful');
-            // stop sending long poll bytes
-            delayed.stop();
-            return res.end(JSON.stringify({
-                result: 'Deployment Successful'
-            }));
-        })
-        .catch(function(err) {
-            debug(err);
-            debug('Deployment not Sucessful');
-            // stop sending long poll bytes
-            delayed.stop();
-            return res.end(JSON.stringify({
-                error: err.toString(),
-                _rgName: rgName,
-                command: 'azure group deployment create --resource-group (your_group_name) --template-file azuredeploy.json --parameters-file azuredeploy.parameters.json',
-                parameters: req.body.parameters,
-                template: req.body.template
-            }));
-        })
-        .finally(function() {
-            parallelDeploys -= 1;
-            fs.unlink(fileName);
-            fs.unlink(parametersFileName);
-
-            if (fs.existsSync(preReqFileName)) {
-                fs.unlink(preReqFileName);
-            }
-
-            if (fs.existsSync(preReqParametersFileName)) {
-                fs.unlink(preReqParametersFileName);
-            }
-
-            azureTools.deleteGroup(rgName)
-                .then(() => {
-                    debug('Sucessfully cleaned up resource group: ' + rgName);
-                })
-                .catch((err) => {
-                    console.error('failed to delete resource group: ' + rgName);
-                    console.error(err);
-                });
-        });
-});
-
-/* GET home page. */
-router.get('/validate', function(req, res) {
-    res.send('blah blah');
-    res.render('index', { title: 'Express' });
+    azureTools.deleteGroup(rgName)
+      .then(() => {
+        debug('Sucessfully cleaned up resource group: ' + rgName);
+      })
+      .catch((err) => {
+        console.error('failed to delete resource group: ' + rgName);
+        console.error(err);
+      });
+  });
 });
 
 module.exports = router;
