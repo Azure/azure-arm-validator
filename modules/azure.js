@@ -17,13 +17,23 @@ exports.login = function () {
   return invoke.call(scriptycli2, cmd)
 };
 
-exports.validateTemplate = function (templateFile, parametersFile) {
-  var cmd = {
-    command: 'group deployment validate',
-    'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
-    'template-file': templateFile,
-    'parameters': parametersFile
-  };
+exports.validateTemplate = function (templateFile, parametersFile, templateLink) {
+  var cmd;
+  if (templateFile) {
+    cmd = {
+      command: 'group deployment validate',
+      'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
+      'template-file': templateFile,
+      'parameters': parametersFile
+      };
+    } else if (templateLink) {
+        cmd = {
+          command: 'group deployment validate',
+          'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
+          'template-uri': templateLink,
+          'parameters': parametersFile
+        };
+    }
   debug('DEBUG: using template file:');
   debug(templateFile);
   debug('using paramters:');
@@ -114,7 +124,7 @@ exports.deleteGroup = function (groupName) {
     .then(() => debug('sucessfully deleted resource group: ' + groupName));
 };
 
-exports.testTemplate = function (rgName, templateFile, parametersFile) {
+exports.testTemplate = function (rgName, templateFile, parametersFile, templateLink) {
   debug('DEBUG: using template file:');
   debug(templateFile);
   debug('using paramters:');
@@ -136,12 +146,20 @@ exports.testTemplate = function (rgName, templateFile, parametersFile) {
     })
     .then(() => {
       debug('sucessfully created resource group ' + rgName);
-
-      var cmd = {
-        command: 'group deployment create',
-        'resource-group': rgName,
-        'template-file': templateFile
-      };
+	  var cmd;
+      if (!templateLink) {
+		cmd = {
+			command: 'group deployment create',
+			'resource-group': rgName,
+			'template-uri': templateLink
+			};
+		} else {
+		cmd = {
+			command: 'group deployment create',
+			'resource-group': rgName,
+			'template-file': templateFile
+			};
+		}
 
       var parametersFileContent = JSON.parse(fs.readFileSync(parametersFile));
       for (var key in parametersFileContent.parameters) {

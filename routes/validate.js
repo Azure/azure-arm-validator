@@ -80,13 +80,15 @@ router.post('/validate', function (req, res) {
   
   promise.then(() => {
     writeFileHelper(fs, fileName, parametersFileName, req.body.template, req.body.parameters)
-      .then(function () {
-        if (preReqFileName) {
-          return azureTools.validateTemplateWithPreReq(fileName, parametersFileName, preReqFileName, preReqParametersFileName);
-        } else {
-          return azureTools.validateTemplate(fileName, parametersFileName);
-        }
-      })
+      .then(function() {
+                if (preReqFileName) {
+                    return azureTools.validateTemplateWithPreReq(fileName, parametersFileName, preReqFileName, preReqParametersFileName);
+                } else if (req.body.template_link) {
+                    return azureTools.validateTemplate(null, parametersFileName, req.body.template_link);
+                } else {
+                    return azureTools.validateTemplate(fileName, parametersFileName);
+                }
+            })
       .then(function () {
         return res.send({
           result: 'Template Valid'
@@ -174,6 +176,8 @@ router.post('/deploy', function (req, res) {
     debug('parallel deploy count: ' + parallelDeploys);
     if (preReqFileName) {
       return azureTools.testTemplateWithPreReq(rgName, fileName, parametersFileName, preReqFileName, preReqParametersFileName);
+    } else if (req.body.template_link) {
+      return azureTools.testTemplate(rgName, null, parametersFileName, req.body.template_link);
     } else {
       return azureTools.testTemplate(rgName, fileName, parametersFileName);
     }
