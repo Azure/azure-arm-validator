@@ -147,7 +147,7 @@ exports.testTemplate = function (rgName, templateFile, parametersFile, templateL
     .then(() => {
       debug('sucessfully created resource group ' + rgName);
 	  var cmd;
-      if (!templateLink) {
+      if (templateLink) {
 		cmd = {
 			command: 'group deployment create',
 			'resource-group': rgName,
