@@ -74,7 +74,7 @@ else #start the app if the config file was staged
     #-----------------------------------------------------------------
     # currently this isn't working for some reason, need to run this interactively after deployment finishes
     npm install
-    sudo forever-service install armvalidator –-script ./bin/www
+    sudo forever-service install armvalidator --script ./bin/www
     sudo service armvalidator start
 
 fi

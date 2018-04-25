@@ -4,7 +4,7 @@
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "westus2",
+      "defaultValue": "centralus",
       "metadata": {
         "description": "Location for the resources, default to westus2 to match the VM size requested."
       }
@@ -156,7 +156,7 @@
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "Standard_D2s_v3"
+          "vmSize": "Standard_DS2_v2"
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
