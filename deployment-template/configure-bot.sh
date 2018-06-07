@@ -7,11 +7,19 @@ artifactsLocationSasToken="$3"
 appPath="/home/$userName/azure-arm-validator"
 sudo mkdir $appPath
 
-#install azure cli
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
+# install azure cli - signing key has been changed - this will be broken
+#echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+#sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
+#sudo apt-get install apt-transport-https
+#sudo apt-get update && sudo apt-get install azure-cli
+
+# here is the fix for CLI install
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
 sudo apt-get install apt-transport-https
 sudo apt-get update && sudo apt-get install azure-cli
+
 
 #install git
 sudo apt-get update
@@ -53,7 +61,8 @@ mongo 'arm-validator' --eval 'db["arm-validator"].armvalidator.insert({"name":"a
 sudo systemctl enable mongod.service
 
 #try to download the config file if it was staged.
-curl -f -o "$appPath/.config.json" "$artifactsLocation/.config.json$artifactsLocationSasToken"
+echo "$artifactsLocation.config.json$artifactsLocationSasToken"
+curl -v -f -o "$appPath/.config.json" "$artifactsLocation.config.json$artifactsLocationSasToken"
 rc=$?
 if test "$rc" != "0"; then
     echo "curl failed with: $rc"

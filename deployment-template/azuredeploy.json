@@ -199,11 +199,11 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
-                "[concat(parameters('_artifactsLocation'), '/configure-bot.sh', parameters('_artifactsLocationSasToken'))]"
+                "[uri(parameters('_artifactsLocation'), concat('configure-bot.sh', parameters('_artifactsLocationSasToken')))]"
               ]
             },
             "protectedSettings": {
-              "commandToExecute": "[concat('sh configure-bot.sh ', parameters('adminUsername'), ' ', parameters('_artifactsLocation'), ' \"', parameters('_artifactsLocationSasToken'), '\"')]"
+              "commandToExecute": "[concat('sh configure-bot.sh ', parameters('adminUsername'), ' ', uri(parameters('_artifactsLocation'), '.'), ' \"', parameters('_artifactsLocationSasToken'), '\"')]"
             }
           }
         }

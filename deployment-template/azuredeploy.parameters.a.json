@@ -6,7 +6,7 @@
       "value": "armvalidatoradmin"
     },
     "publicIpAddressName": {
-      "value": "publicIp-a-central"
+      "value": "template-bot-a-publicIp"
     },
     "publicIpAddressResourceGroup": {
       "value": "template-bot-public-ips"
