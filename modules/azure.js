@@ -19,7 +19,7 @@ exports.login = function () {
 
 exports.validateTemplate = function (templateFile, parametersFile, templateLink) {
   var cmd;
-  if (templateFile) {
+/*  if (templateFile) {
     cmd = {
       command: 'group deployment validate',
       'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
@@ -38,11 +38,13 @@ exports.validateTemplate = function (templateFile, parametersFile, templateLink)
   debug(templateFile);
   debug('using paramters:');
   debug(parametersFile);
-  return invoke.call(scriptycli2, cmd);
+*/
+  return; //invoke.call(scriptycli2, cmd);
 };
 
 exports.validateTemplateWithPreReq = function (templateFile, parametersFile, preReqTemplateFile, preReqParametersFile) {
 
+  /*
   var cmd = {
     command: 'group deployment validate',
     'resource-group': conf.get('TEST_RESOURCE_GROUP_NAME'),
@@ -70,8 +72,10 @@ exports.validateTemplateWithPreReq = function (templateFile, parametersFile, pre
       }
 
       // now deploy!
-      return invoke.call(scriptycli2, cmd);
+      return; // "Skipping Validation"; //invoke.call(scriptycli2, cmd);
     });
+    */
+   return;
 }
 
 
